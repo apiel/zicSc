@@ -1,7 +1,19 @@
 import { boot } from '@supercollider/server-plus';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
+
+async function jackConnect() {
+    // jack_lsp -c
+    await execAsync('jack_connect SuperCollider:out_1 system:playback_1');
+    await execAsync('jack_connect SuperCollider:out_2 system:playback_2');
+}
 
 export async function sc() {
     const server = await boot();
+    await jackConnect();
+
     const def = await server.synthDef(
         'bubbles',
         `
