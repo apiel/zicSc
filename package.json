@@ -18,8 +18,9 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
+    "@supercollider/server-plus": "^1.0.1",
     "tonal": "^4.12.0",
-    "zic_node_ui": "file:../zicNodeUI",
-    "zic_midi": "file:../zicMidi"
+    "zic_midi": "file:../zicMidi",
+    "zic_node_ui": "file:../zicNodeUI"
   }
 }

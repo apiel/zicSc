@@ -8,6 +8,7 @@ import { loadSequences, setSelectedSequenceId } from './sequence';
 import { startClient, startServer } from './tcp';
 import { loadTracks } from './track';
 import { renderView } from './view';
+import { sc } from './sc';
 
 open({ size: config.screen.size });
 
@@ -21,6 +22,7 @@ if (process.argv.includes('--client')) {
 }
 
 (async function () {
+    await sc();
     await loadTracks();
     await loadPatches();
     await loadSequences();

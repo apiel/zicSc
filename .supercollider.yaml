@@ -1,0 +1,8 @@
+sclang: /usr/bin/sclang
+scsynth: /usr/bin/scsynth
+debug: true
+numInputBusChannels: "0"
+numOutputBusChannels: "2"
+
+# jack_lsp -c
+# jack_connect SuperCollider:out_1 system:playback_1

@@ -1,6 +1,4 @@
-import { config } from '../../config';
 import { Steps } from '../../sequence';
-import { getTrack } from '../../track';
 import { currentStep } from './changePage';
 
 export function initNote(steps: Steps, trackId: number) {
