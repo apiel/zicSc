@@ -16,6 +16,13 @@ export async function addSynth(defName: string, sourceCode: string) {
     if (server) {
         // This doesnt seem to add the synth ^^
         return server.synthDef(defName, sourceCode);
+        // should return server.synth(def); instead!!
+        // but each patch must have an envelop: https://doc.sccode.org/Classes/MIDIIn.html#example%20with%20sound
+
+        // But should we create envelop by default???
+        // or let it up to the patch?
+
+        // however creating synth for every patch is maybe not a good idea!!!
     }
 }
 
