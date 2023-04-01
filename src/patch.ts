@@ -15,11 +15,26 @@ export function setCurrentPatchId(id: number) {
 export class Patch {
     protected filename: string;
 
-    synth?: string;
+    protected _synth?: string;
+
     synthDef?: SynthDef;
     name: string = 'Init patch';
     floats: { [id: number]: number } = {};
     strings: { [id: number]: string } = {};
+
+    setSynth(_synth: string | undefined) {
+        this._synth = _synth;
+        return this.loadSynthDef();
+    }
+
+    clearSynth() {
+        this._synth = undefined;
+        this.synthDef = undefined;
+    }
+
+    get synth() {
+        return this._synth;
+    }
 
     setString(stringId: number, value: string) {
         this.strings[stringId] = value;
@@ -51,6 +66,17 @@ export class Patch {
         return writeFile(patchFile, JSON.stringify(this, null, 2));
     }
 
+    async loadSynthDef() {
+        if (this.synth) {
+            const synth = synthsMap.get(this.synth);
+            if (synth) {
+                const name = `patch_${this.id}`;
+                const def = synth.synthDef.replace(/SynthDef\([0-9a-zA-Z\"\-_\\]+,/g, `SynthDef("${name}",`);
+                this.synthDef = await addSynth(name, def);
+            }
+        }
+    }
+
     async load() {
         // if (this.synthDef) { remove ??? }
 
@@ -63,20 +89,12 @@ export class Patch {
             return;
         }
         const patch = JSON.parse((await readFile(patchFile)).toString());
-        Object.assign(this, patch);
-
-        if (this.synth) {
-            const synth = synthsMap.get(this.synth);
-            if (synth) {
-                const name = `patch_${this.id}`;
-                const def = synth.synthDef.replace(/SynthDef\([0-9a-zA-Z\"\-_\\]+,/g, `SynthDef("${name}",`);
-                this.synthDef = await addSynth(name, def);
-            }
-        }
+        this.set(patch);
     }
 
-    set({ id, ...patch }: Partial<Patch>) {
+    set({ id, synth, ...patch }: Partial<Patch>) {
         Object.assign(this, patch);
+        this.setSynth(synth);
     }
 }
 

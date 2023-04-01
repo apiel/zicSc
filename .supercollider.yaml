@@ -1,5 +1,5 @@
 sclang: /usr/bin/sclang
 scsynth: /usr/bin/scsynth
-debug: true
+# debug: true
 numInputBusChannels: "0"
 numOutputBusChannels: "2"

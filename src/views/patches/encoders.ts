@@ -29,15 +29,15 @@ export const synthEncoder: EncoderData = {
             if (direction === -1) {
                 return false;
             }
-            patch.synth = synthsNames[0];
+            await patch.setSynth(synthsNames[0]);
             return true;
         }
         const synthIndex = synthsNames.indexOf(synth);
         if (synthIndex === 0 && direction === -1) {
-            patch.synth = undefined;
+            patch.clearSynth();
             return true;
         }
-        patch.synth = synthsNames[minmax(synthIndex + direction, 0, synthsNames.length - 1)];
+        await patch.setSynth(synthsNames[minmax(synthIndex + direction, 0, synthsNames.length - 1)]);
         return true;
     },
 };
