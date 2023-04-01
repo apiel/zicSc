@@ -1,4 +1,4 @@
-import { boot } from '@supercollider/server-plus';
+import ServerPlus, { SynthDef, boot } from '@supercollider/server-plus';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -10,8 +10,23 @@ async function jackConnect() {
     await execAsync('jack_connect SuperCollider:out_2 system:playback_2');
 }
 
+let server: ServerPlus;
+
+export async function addSynth(defName: string, sourceCode: string) {
+    if (server) {
+        // This doesnt seem to add the synth ^^
+        return server.synthDef(defName, sourceCode);
+    }
+}
+
+export async function playSynth(def: SynthDef) {
+    if (server) {
+        server.synth(def);
+    }
+}
+
 export async function sc() {
-    const server = await boot();
+    server = await boot();
     await jackConnect();
 
     // const def = await server.synthDef(
@@ -42,14 +57,13 @@ export async function sc() {
     //             mul:amp * EnvGen.ar(
     //                 Env.perc( atk, dur - atk, curve: NamedControl.kr(\\amp_c, [-1, 6])),
     //                 doneAction: 2
-    //             );	
+    //             );
     //         );
     //         Out.ar(out, zout);
     //     })`,
     // );
 
-
     // setInterval(() => {
-    //     server.synth(def);
+    // server.synth(def);
     // }, 4000);
 }

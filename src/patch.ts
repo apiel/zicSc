@@ -1,7 +1,11 @@
 import { readFile, writeFile } from 'fs/promises';
+import { SynthDef } from '@supercollider/server-plus';
+
 import { config } from './config';
 import { fileExist, minmax } from './util';
 import { PATCH_COUNT } from './config';
+import { synthsMap } from './views/patches/synths';
+import { addSynth } from './sc';
 
 export let currentPatchId = 0;
 export function setCurrentPatchId(id: number) {
@@ -12,6 +16,7 @@ export class Patch {
     protected filename: string;
 
     synth?: string;
+    synthDef?: SynthDef;
     name: string = 'Init patch';
     floats: { [id: number]: number } = {};
     strings: { [id: number]: string } = {};
@@ -47,6 +52,8 @@ export class Patch {
     }
 
     async load() {
+        // if (this.synthDef) { remove ??? }
+
         const patchFile = `${config.path.patches}/${this.filename}`;
         if (!(await fileExist(patchFile))) {
             // TODO might want to assign default patch
@@ -57,6 +64,15 @@ export class Patch {
         }
         const patch = JSON.parse((await readFile(patchFile)).toString());
         Object.assign(this, patch);
+
+        if (this.synth) {
+            const synth = synthsMap.get(this.synth);
+            if (synth) {
+                const name = `patch_${this.id}`;
+                const def = synth.synthDef.replace(/SynthDef\([0-9a-zA-Z\"\-_\\]+,/g, `SynthDef("${name}",`);
+                this.synthDef = await addSynth(name, def);
+            }
+        }
     }
 
     set({ id, ...patch }: Partial<Patch>) {

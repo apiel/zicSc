@@ -1,9 +1,9 @@
-import { clear, drawText } from 'zic_node_ui';
-import { MidiMsg } from '../../midi';
-import { currentPatchId, getPatch } from '../../patch';
+import { clear } from 'zic_node_ui';
+import { MidiMsg, MIDI_TYPE } from '../../midi';
+import { Patch, currentPatchId, getPatch } from '../../patch';
 import { color } from '../../style';
 import { RenderOptions, viewPadPressed } from '../../view';
-import { patchPadMidiHandler } from '../controller/patchController';
+import { patchController, patchPadMidiHandler } from '../controller/patchController';
 import { sequencePlayStopMidiHandler, sequenceSelectMidiHandler } from '../controller/sequencerController';
 import { patchMenu, patchMenuHandler } from './patch.menu';
 import { synthsMap } from './synths';
@@ -12,9 +12,10 @@ import { renderMessage } from '../../draw/drawMessage';
 import { pageMidiHandler } from '../controller/pageController';
 import { drawPatchTitle } from './draw';
 import { patchEncoder, synthEncoder } from './encoders';
+import { SynthData } from './synths/SynthData';
+import { playSynth } from '../../sc';
 
 export function getPatchView(patch = getPatch(currentPatchId)) {
-    console.log('patch', currentPatchId, patch);
     if (!patch.synth) {
         return;
     }
@@ -41,7 +42,7 @@ export async function patchView({ controllerRendering }: RenderOptions = {}) {
     //     if (viewPadPressed) {
     //         bankController();
     //     } else {
-    //         patchController(view?.views.length, view?.currentView);
+    patchController(view?.views.length, view?.currentView);
     //     }
     // }
 
@@ -78,9 +79,14 @@ export async function patchMidiHandler(midiMsg: MidiMsg) {
         return true;
     }
 
-    const view = getPatchView();
+    const patch = getPatch(currentPatchId);
+    const view = getPatchView(patch);
     if (!view) {
         return encodersHandler(defaultEncoder, midiMsg);
+    }
+
+    if (await keyboardMidiHandler(midiMsg, patch)) {
+        return true;
     }
 
     if (pageMidiHandler(midiMsg, view.changeView.bind(view))) {
@@ -88,4 +94,22 @@ export async function patchMidiHandler(midiMsg: MidiMsg) {
     }
 
     return encodersHandler(view.data.encoders, midiMsg);
+}
+
+async function keyboardMidiHandler({ isKeyboard, message: [type, note, velocity] }: MidiMsg, patch: Patch) {
+    // if (midiMsg.type === 'noteon' && midiMsg.note === 60) {
+    //     return true;
+    // }
+    if (isKeyboard && patch.synthDef) {
+        if (type === MIDI_TYPE.KEY_PRESSED) {
+            // view.keyboard.noteOn(note);
+            await playSynth(patch.synthDef);
+            return true;
+        }
+        if (type === MIDI_TYPE.KEY_RELEASED) {
+            // view.keyboard.noteOff(note);
+            return true;
+        }
+    }
+    return false;
 }

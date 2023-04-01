@@ -18,7 +18,7 @@ const main = {
 
 export default new SynthData(
     'bubble',
-    `SynthDef("bubbles", { arg out=0;
+    `SynthDef("bubble", { arg out=0;
       var f, zout;
       var wobble=Rand(0.0, 10.0), innerWobble=Rand(0.0, 16.0), releaseTime=Rand(2.0, 6.0);
       f = LFSaw.kr(wobble, 0, 24, LFSaw.kr([innerWobble, innerWobble / 1.106], 0, 3, 80)).midicps;
