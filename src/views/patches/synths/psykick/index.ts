@@ -1,5 +1,20 @@
+import { Encoders } from '../../../../layout/encoders.layout';
 import { SynthData } from '../SynthData';
-import { psykickMain } from './psykickMain';
+
+const encoders: Encoders = [
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+];
+
+const main = {
+  encoders,
+};
 
 export default new SynthData(
     'psykick',
@@ -19,5 +34,5 @@ export default new SynthData(
         );
         Out.ar(out, zout);
     })`,
-    [psykickMain],
+    [main],
 );
