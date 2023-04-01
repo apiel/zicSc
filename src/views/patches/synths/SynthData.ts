@@ -1,6 +1,6 @@
-import { Encoders } from '../../layout/encoders.layout';
-import { currentPatchId } from '../../patch';
-import { minmax } from '../../util';
+import { Encoders } from '../../../layout/encoders.layout';
+import { currentPatchId } from '../../../patch';
+import { minmax } from '../../../util';
 
 // TODO when pressing patch view button several time switch between views
 // TODO long press patch view button to allow to select a different patch
@@ -8,7 +8,7 @@ import { minmax } from '../../util';
 //   Right now we are browsing through all patch. But could be interest to
 //   be able to browse only through patch of the selected sequence...
 
-export class PatchViewData {
+export class SynthData {
     currentView = 0;
     lastPatchId = currentPatchId;
 
@@ -34,9 +34,11 @@ export class PatchViewData {
     }
 
     constructor(
+        public name: string,
+        public synthDef: string,
         public views: {
             encoders: Encoders;
-            header: () => void;
+            header?: () => void;
         }[],
     ) {}
 }

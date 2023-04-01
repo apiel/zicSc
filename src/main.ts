@@ -22,7 +22,7 @@ if (process.argv.includes('--client')) {
 }
 
 (async function () {
-    await sc();
+    // await sc();
     await loadTracks();
     await loadPatches();
     await loadSequences();

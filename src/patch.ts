@@ -1,6 +1,5 @@
 import { readFile, writeFile } from 'fs/promises';
 import { config } from './config';
-import { getPlayingSequencesForPatch } from './sequence';
 import { fileExist, minmax } from './util';
 import { PATCH_COUNT } from './config';
 
@@ -12,47 +11,34 @@ export function setCurrentPatchId(id: number) {
 export class Patch {
     protected filename: string;
 
-    isModified: boolean = false;
+    synth?: string;
     name: string = 'Init patch';
     floats: { [id: number]: number } = {};
     strings: { [id: number]: string } = {};
-    cc: { [id: number]: number } = {};
 
     setString(stringId: number, value: string) {
-        this.isModified = true;
         this.strings[stringId] = value;
 
-        const sequences = getPlayingSequencesForPatch(this.id);
-        for (const {trackId} of sequences) {
-            // trackId !== undefined && trackSetString(trackId, value, stringId);
-            // TODO send msg to scserver
-        }
+        // TODO send msg to scserver
+        // Might now even need to check if it is playing, because as long we edit it, we should load it...
+        // const sequences = getPlayingSequencesForPatch(this.id);
+        // for (const { trackId } of sequences) {
+        //     // trackId !== undefined && trackSetString(trackId, value, stringId);
+        // }
     }
 
     setNumber(floatId: number, value: number) {
-        this.isModified = true;
         this.floats[floatId] = value;
 
-        const sequences = getPlayingSequencesForPatch(this.id);
-        for (const {trackId} of sequences) {
-            // trackId !== undefined && trackSetNumber(trackId, value, floatId);
-            // TODO send msg to scserver
-        }
-    }
-
-    setCc(ccId: number, value: number) {
-        this.isModified = true;
-        this.cc[ccId] = value;
-
-        const sequences = getPlayingSequencesForPatch(this.id);
-        for (const {trackId} of sequences) {
-            // trackId !== undefined && trackCc(trackId, value, ccId);
-            // TODO send msg to scserver
-        }
+        // TODO send msg to scserver
+        // const sequences = getPlayingSequencesForPatch(this.id);
+        // for (const { trackId } of sequences) {
+        //     // trackId !== undefined && trackSetNumber(trackId, value, floatId);
+        // }
     }
 
     constructor(public readonly id: number) {
-        this.filename = `${(this.id).toString().padStart(3, '0')}.json`;
+        this.filename = `${this.id.toString().padStart(3, '0')}.json`;
     }
 
     save() {
@@ -63,22 +49,18 @@ export class Patch {
     async load() {
         const patchFile = `${config.path.patches}/${this.filename}`;
         if (!(await fileExist(patchFile))) {
-            this.isModified = false;
             // TODO might want to assign default patch
-            // right now get the first patch from the engine
-            this.set(getPatch(0));
+            // this.set(getPatch(0??));
             this.name = 'Init patch';
 
             return;
         }
         const patch = JSON.parse((await readFile(patchFile)).toString());
-        this.isModified = true;
         Object.assign(this, patch);
     }
 
-    set({ id, ...patch}: Partial<Patch>) {
+    set({ id, ...patch }: Partial<Patch>) {
         Object.assign(this, patch);
-        this.isModified = true;
     }
 }
 
@@ -106,7 +88,7 @@ export async function savePatchAs(patch: Patch, as: string) {
     if (!isUnique) {
         throw new Error(`Patch name ${as} is not unique`);
     }
-    let nextId = patches.findIndex((p) => p.isModified === false);
+    let nextId = patches.findIndex((p) => p.synth === undefined);
     if (nextId === -1) {
         throw new Error(`No more free patch`);
     }
