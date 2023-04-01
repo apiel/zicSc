@@ -3,17 +3,41 @@ import { EncoderData } from '../../layout/encoders.layout';
 import { shiftPressed } from '../../midi';
 import { currentPatchId, getPatch, setCurrentPatchId } from '../../patch';
 import { minmax } from '../../util';
+import { synthsMap, synthsNames } from './synths';
 
 export const patchEncoder: EncoderData = {
     node: {
         title: 'Patch',
         getValue: () => `#${`${currentPatchId}`.padStart(3, '0')}`,
-        unit: () => getPatch(currentPatchId).name,
+        info: () => getPatch(currentPatchId).name,
     },
     handler: async (direction) => {
-        setCurrentPatchId(
-            currentPatchId + direction * (shiftPressed ? ([1,-1].includes(direction) ? 10 : 50) : 1),
-        );
+        setCurrentPatchId(currentPatchId + direction * (shiftPressed ? ([1, -1].includes(direction) ? 10 : 50) : 1));
+        return true;
+    },
+};
+
+export const synthEncoder: EncoderData = {
+    node: {
+        title: 'Synth',
+        getValue: () => getPatch(currentPatchId).synth || 'None',
+    },
+    handler: async (direction) => {
+        const patch = getPatch(currentPatchId);
+        const synth = patch.synth;
+        if (!synth) {
+            if (direction === -1) {
+                return false;
+            }
+            patch.synth = synthsNames[0];
+            return true;
+        }
+        const synthIndex = synthsNames.indexOf(synth);
+        if (synthIndex === 0 && direction === -1) {
+            patch.synth = undefined;
+            return true;
+        }
+        patch.synth = synthsNames[minmax(synthIndex + direction, 0, synthsNames.length - 1)];
         return true;
     },
 };

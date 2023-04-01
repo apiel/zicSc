@@ -1,6 +1,7 @@
 import { Encoders } from '../../../layout/encoders.layout';
 import { currentPatchId } from '../../../patch';
 import { minmax } from '../../../util';
+import { patchEncoder, synthEncoder } from '../encoders';
 
 // TODO when pressing patch view button several time switch between views
 // TODO long press patch view button to allow to select a different patch
@@ -40,5 +41,12 @@ export class SynthData {
             encoders: Encoders;
             header?: () => void;
         }[],
-    ) {}
+    ) {
+        // Force first view to have patch and synth encoder
+        const { encoders: [_skip1, _skip2, ...encoders], ...rest } = this.views[0];
+        this.views[0] = {
+            encoders: [patchEncoder, synthEncoder, ...encoders],
+            ...rest,
+        };
+    }
 }

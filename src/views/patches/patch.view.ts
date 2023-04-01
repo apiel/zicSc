@@ -11,7 +11,7 @@ import { Encoders, encodersHandler, encodersView } from '../../layout/encoders.l
 import { renderMessage } from '../../draw/drawMessage';
 import { pageMidiHandler } from '../controller/pageController';
 import { drawPatchTitle } from './draw';
-import { patchEncoder } from './encoders';
+import { patchEncoder, synthEncoder } from './encoders';
 
 export function getPatchView(patch = getPatch(currentPatchId)) {
     console.log('patch', currentPatchId, patch);
@@ -23,7 +23,7 @@ export function getPatchView(patch = getPatch(currentPatchId)) {
 
 const defaultEncoder: Encoders = [
     patchEncoder,
-    undefined,
+    synthEncoder,
     undefined,
     undefined,
     undefined,
@@ -50,12 +50,11 @@ export async function patchView({ controllerRendering }: RenderOptions = {}) {
     let header: () => void = () => drawPatchTitle(patch.name);
     let encoders: Encoders = defaultEncoder;
 
-    if (!view) {
-        // TODO show encoder to select patch
-        // drawText(`No patch view for ${patch.name}`, { x: 10, y: 10 });
-        encoders = defaultEncoder;
-    } else if (view.data.header) {
-        header = view.data.header;
+    if (view) {
+        encoders = view.data.encoders;
+        if (view.data.header) {
+            header = view.data.header;
+        }
     }
 
     encodersView(encoders);
