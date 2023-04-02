@@ -18,7 +18,7 @@ let group: Group;
 
 interface Params {
     [name: string]: OscType;
-  }
+}
 
 interface SynthNode {
     synth: Synth;
@@ -31,8 +31,8 @@ export async function noteOn(name: string, note: number, velocity: number, param
     if (server) {
         const synthData = synthsMap.get(name);
         if (synthData && synthData.synthDef) {
-            const freq = Note.freq(Note.fromMidi(note)) || 440;
-            const synth = await server.synth(synthData.synthDef, { ...params, freq }, group);
+            const noteFreq = Note.freq(Note.fromMidi(note)) || 440;
+            const synth = await server.synth(synthData.synthDef, { ...params, noteFreq, velocity }, group);
             synthNodes.push({ synth, note });
         }
     }
