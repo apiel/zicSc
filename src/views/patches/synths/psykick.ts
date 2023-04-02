@@ -1,5 +1,5 @@
-import { Encoders } from '../../../../layout/encoders.layout';
-import { SynthData } from '../SynthData';
+import { Encoders } from '../../../layout/encoders.layout';
+import { SynthData } from './SynthData';
 
 const encoders: Encoders = [
   undefined,

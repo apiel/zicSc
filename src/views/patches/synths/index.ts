@@ -1,6 +1,6 @@
-import psykick from './psykick/index';
-import bubble from './bubble/index';
-import sikGoo from './sik-goo/index';
+import psykick from './psykick';
+import bubble from './bubble';
+import sikGoo from './sik-goo';
 
 export const synths = [sikGoo, psykick, bubble];
 export const synthsMap = new Map(synths.map((synth) => [synth.name, synth]));

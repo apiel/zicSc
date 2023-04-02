@@ -1,6 +1,6 @@
-import { Encoders } from '../../../../layout/encoders.layout';
-import { currentPatchId, getPatch } from '../../../../patch';
-import { SynthData } from '../SynthData';
+import { Encoders } from '../../../layout/encoders.layout';
+import { currentPatchId, getPatch } from '../../../patch';
+import { SynthData } from './SynthData';
 
 const encoders: Encoders = [
     undefined,
