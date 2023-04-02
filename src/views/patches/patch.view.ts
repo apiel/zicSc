@@ -3,7 +3,6 @@ import { renderMessage } from '../../draw/drawMessage';
 import { Encoders, encodersHandler, encodersView } from '../../layout/encoders.layout';
 import { MIDI_TYPE, MidiMsg } from '../../midi';
 import { Patch, currentPatchId, getPatch } from '../../patch';
-import { noteOff, noteOn } from '../../sc';
 import { color } from '../../style';
 import { RenderOptions, viewPadPressed } from '../../view';
 import { pageMidiHandler } from '../controller/pageController';
@@ -96,16 +95,13 @@ export async function patchMidiHandler(midiMsg: MidiMsg) {
 }
 
 async function keyboardMidiHandler({ isKeyboard, message: [type, note, velocity] }: MidiMsg, patch: Patch) {
-    // if (midiMsg.type === 'noteon' && midiMsg.note === 60) {
-    //     return true;
-    // }
     if (isKeyboard && patch.synth) {
         if (type === MIDI_TYPE.KEY_PRESSED) {
-            await noteOn(patch.synth, note, velocity, patch.getAllData());
+            await patch.noteOn(note, velocity);
             return true;
         }
         if (type === MIDI_TYPE.KEY_RELEASED) {
-            noteOff(note);
+            patch.noteOff(note);
             return true;
         }
     }

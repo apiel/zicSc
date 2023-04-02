@@ -2,8 +2,8 @@ import { readFile, writeFile } from 'fs/promises';
 
 import { PATCH_COUNT, config } from './config';
 import { shiftPressed } from './midi';
+import { noteOff, noteOn, setParams } from './sc';
 import { fileExist, minmax } from './util';
-import { setParams } from './sc';
 
 export let currentPatchId = 0;
 export function setCurrentPatchId(id: number) {
@@ -30,8 +30,16 @@ export class Patch {
         this.setData(key, value);
     }
 
-    getAllData() {
-        return this.data;
+    noteOn(note: number, velocity: number) {
+        if (this.synth) {
+            return noteOn(this.synth, note, velocity, this.data);
+        }
+    }
+
+    noteOff(note: number) {
+        if (this.synth) {
+            return noteOff(note);
+        }
     }
 
     getData<T = number | string>(key: string): T {
