@@ -31,15 +31,17 @@ interface EncoderBase {
     bgColor?: Color;
 }
 
+export type EncoderStringFn = string | (() => string);
+
 export interface EncoderDefault extends EncoderBase {
     getValue: () => EncoderValue | string;
-    unit?: string | (() => string);
-    info?: string | (() => string);
+    unit?: EncoderStringFn;
+    info?: EncoderStringFn;
 }
 
 export interface EncoderSlider extends EncoderBase {
     getSlider: () => number;
-    info?: string | (() => string);
+    info?: EncoderStringFn;
 }
 
 export type Encoder = EncoderDefault | EncoderSlider;

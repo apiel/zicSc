@@ -1,8 +1,8 @@
 import { Encoders } from '../../../layout/encoders.layout';
-import { currentPatchId, getPatch } from '../../../patch';
+import { patchNumberEncoder } from '../encoders';
 import { SynthData } from './SynthData';
 
-const d = {
+const defaultValue = {
     minReleaseTime: 2,
     maxReleaseTime: 6,
     minWobble: 0,
@@ -14,36 +14,30 @@ const d = {
 const encoders: Encoders = [
     undefined,
     undefined,
-    {
-        node: {
-            title: 'minReleaseTime',
-            getValue: () => getPatch(currentPatchId).getData('minReleaseTime', d.minReleaseTime).toFixed(1).toString(),
-            unit: 'seconds',
-        },
-        handler: async (direction) => {
-            const patch = getPatch(currentPatchId);
-            const max = patch.getData('maxReleaseTime', d.maxReleaseTime);
-            patch.setNumber('minReleaseTime', d.minReleaseTime, direction, 0.5, max, 0.5);
-            return true;
-        },
-    },
-    {
-        node: {
-            title: 'maxReleaseTime',
-            getValue: () => getPatch(currentPatchId).getData('maxReleaseTime', d.maxReleaseTime).toFixed(1).toString(),
-            unit: 'seconds',
-        },
-        handler: async (direction) => {
-            const patch = getPatch(currentPatchId);
-            const min = patch.getData('minReleaseTime', d.minReleaseTime);
-            patch.setNumber('maxReleaseTime', d.maxReleaseTime, direction, min, 10, 0.5);
-            return true;
-        },
-    },
-    undefined,
-    undefined,
-    undefined,
-    undefined,
+    patchNumberEncoder('minReleaseTime', 'Min release time', defaultValue, 0.5, 'maxReleaseTime', {
+        unit: 'seconds',
+        ratio: 0.5,
+    }),
+    patchNumberEncoder('maxReleaseTime', 'Max release time', defaultValue, 'minReleaseTime', 10, {
+        unit: 'seconds',
+        ratio: 0.5,
+    }),
+    patchNumberEncoder('minWobble', 'Min wobble', defaultValue, 0.5, 'maxWobble', {
+        unit: 'Hz',
+        ratio: 0.5,
+    }),
+    patchNumberEncoder('maxWobble', 'Max wobble', defaultValue, 'minWobble', 10, {
+        unit: 'Hz',
+        ratio: 0.5,
+    }),
+    patchNumberEncoder('minInnerWooble', 'Min inner wobble', defaultValue, 0.5, 'maxInnerWobble', {
+        unit: 'Hz',
+        ratio: 0.5,
+    }),
+    patchNumberEncoder('maxInnerWobble', 'Max inner wobble', defaultValue, 'minInnerWooble', 10, {
+        unit: 'Hz',
+        ratio: 0.5,
+    }),
 ];
 
 const main = {

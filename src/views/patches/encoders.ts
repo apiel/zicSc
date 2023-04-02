@@ -1,6 +1,7 @@
 import { Color } from 'zic_node_ui';
 import { EncoderData } from '../../layout/encoders.layout';
 import { shiftPressed } from '../../midi';
+import { EncoderStringFn } from '../../nodes/encoder.node';
 import { currentPatchId, getPatch, setCurrentPatchId } from '../../patch';
 import { minmax } from '../../util';
 import { synthsNames } from './synths';
@@ -48,60 +49,97 @@ interface EncoderOptions {
     valueColor?: Color;
     isDisabled?: IsDisabled;
     bgColor?: Color;
+    info?: EncoderStringFn;
+    unit?: EncoderStringFn;
 }
 
-export const percentageEncoder = (
-    fId: number,
+interface NumberEncoderOptions extends EncoderOptions {
+    ratio?: number;
+    shiftRatio?: number;
+}
+
+export const patchNumberEncoder = (
+    key: string,
     title: string,
-    { valueColor, isDisabled, bgColor }: EncoderOptions = {},
+    defaultValue: { [key: string]: number | string },
+    min: number | string,
+    max: number | string,
+    { valueColor, ratio, shiftRatio, ...options }: NumberEncoderOptions = {},
 ): EncoderData => ({
     node: {
         title,
         getValue: () => ({
-            value: 'fixme', //Math.round(getPatch(currentPatchId).floats[fId] * 100).toString(),
+            value: getPatch(currentPatchId)
+                .getData<number>(key, defaultValue[key] as number)
+                .toFixed(1)
+                .toString(),
             valueColor,
         }),
-        unit: '%',
-        isDisabled,
-        bgColor,
+        ...options,
     },
     handler: async (direction) => {
         const patch = getPatch(currentPatchId);
-        // patch.setNumber(fId, minmax(patch.floats[fId] + direction * (shiftPressed ? 0.05 : 0.01), 0, 1));
+        const minValue =
+            typeof min === 'number' ? min : patch.getData<number>(min as string, defaultValue[min as string] as number);
+        const maxValue =
+            typeof max === 'number' ? max : patch.getData<number>(max as string, defaultValue[max as string] as number);
+        patch.setNumber(key, defaultValue[key] as number, direction, minValue, maxValue, ratio, shiftRatio);
         return true;
     },
 });
 
-export const onOffEncoder = (
-    fId: number,
-    title: string,
-    { isDisabled, bgColor }: EncoderOptions = {},
-): EncoderData => ({
-    node: {
-        title,
-        getValue: () => 'fixme', //(getPatch(currentPatchId).floats[fId] ? 'On' : 'Off'),
-        isDisabled,
-        bgColor,
-    },
-    handler: async (direction) => {
-        const patch = getPatch(currentPatchId);
-        // patch.setNumber(fId, minmax(patch.floats[fId] + direction, 0, 1));
-        return true;
-    },
-});
+// export const percentageEncoder = (
+//     fId: number,
+//     title: string,
+//     { valueColor, isDisabled, bgColor }: EncoderOptions = {},
+// ): EncoderData => ({
+//     node: {
+//         title,
+//         getValue: () => ({
+//             value: 'fixme', //Math.round(getPatch(currentPatchId).floats[fId] * 100).toString(),
+//             valueColor,
+//         }),
+//         unit: '%',
+//         isDisabled,
+//         bgColor,
+//     },
+//     handler: async (direction) => {
+//         const patch = getPatch(currentPatchId);
+//         // patch.setNumber(fId, minmax(patch.floats[fId] + direction * (shiftPressed ? 0.05 : 0.01), 0, 1));
+//         return true;
+//     },
+// });
 
-export const msEncoder = (fId: number, title: string, valueColor?: Color): EncoderData => ({
-    node: {
-        title,
-        getValue: () => ({
-            value: 'fixme', //getPatch(currentPatchId).floats[fId].toString(),
-            valueColor,
-        }),
-        unit: 'ms',
-    },
-    handler: async (direction) => {
-        const patch = getPatch(currentPatchId);
-        // patch.setNumber(fId, minmax(patch.floats[fId] + direction * (shiftPressed ? 100 : 10), 0, 9900));
-        return true;
-    },
-});
+// export const onOffEncoder = (
+//     fId: number,
+//     title: string,
+//     { isDisabled, bgColor }: EncoderOptions = {},
+// ): EncoderData => ({
+//     node: {
+//         title,
+//         getValue: () => 'fixme', //(getPatch(currentPatchId).floats[fId] ? 'On' : 'Off'),
+//         isDisabled,
+//         bgColor,
+//     },
+//     handler: async (direction) => {
+//         const patch = getPatch(currentPatchId);
+//         // patch.setNumber(fId, minmax(patch.floats[fId] + direction, 0, 1));
+//         return true;
+//     },
+// });
+
+// export const msEncoder = (fId: number, title: string, valueColor?: Color): EncoderData => ({
+//     node: {
+//         title,
+//         getValue: () => ({
+//             value: 'fixme', //getPatch(currentPatchId).floats[fId].toString(),
+//             valueColor,
+//         }),
+//         unit: 'ms',
+//     },
+//     handler: async (direction) => {
+//         const patch = getPatch(currentPatchId);
+//         // patch.setNumber(fId, minmax(patch.floats[fId] + direction * (shiftPressed ? 100 : 10), 0, 9900));
+//         return true;
+//     },
+// });
