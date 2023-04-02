@@ -105,7 +105,7 @@ async function keyboardMidiHandler({ isKeyboard, message: [type, note, velocity]
             return true;
         }
         if (type === MIDI_TYPE.KEY_RELEASED) {
-            await noteOff(note);
+            noteOff(note);
             return true;
         }
     }

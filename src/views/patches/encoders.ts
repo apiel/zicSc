@@ -58,7 +58,7 @@ export const percentageEncoder = (
     node: {
         title,
         getValue: () => ({
-            value: Math.round(getPatch(currentPatchId).floats[fId] * 100).toString(),
+            value: 'fixme', //Math.round(getPatch(currentPatchId).floats[fId] * 100).toString(),
             valueColor,
         }),
         unit: '%',
@@ -67,7 +67,7 @@ export const percentageEncoder = (
     },
     handler: async (direction) => {
         const patch = getPatch(currentPatchId);
-        patch.setNumber(fId, minmax(patch.floats[fId] + direction * (shiftPressed ? 0.05 : 0.01), 0, 1));
+        // patch.setNumber(fId, minmax(patch.floats[fId] + direction * (shiftPressed ? 0.05 : 0.01), 0, 1));
         return true;
     },
 });
@@ -79,13 +79,13 @@ export const onOffEncoder = (
 ): EncoderData => ({
     node: {
         title,
-        getValue: () => (getPatch(currentPatchId).floats[fId] ? 'On' : 'Off'),
+        getValue: () => 'fixme', //(getPatch(currentPatchId).floats[fId] ? 'On' : 'Off'),
         isDisabled,
         bgColor,
     },
     handler: async (direction) => {
         const patch = getPatch(currentPatchId);
-        patch.setNumber(fId, minmax(patch.floats[fId] + direction, 0, 1));
+        // patch.setNumber(fId, minmax(patch.floats[fId] + direction, 0, 1));
         return true;
     },
 });
@@ -94,14 +94,14 @@ export const msEncoder = (fId: number, title: string, valueColor?: Color): Encod
     node: {
         title,
         getValue: () => ({
-            value: getPatch(currentPatchId).floats[fId].toString(),
+            value: 'fixme', //getPatch(currentPatchId).floats[fId].toString(),
             valueColor,
         }),
         unit: 'ms',
     },
     handler: async (direction) => {
         const patch = getPatch(currentPatchId);
-        patch.setNumber(fId, minmax(patch.floats[fId] + direction * (shiftPressed ? 100 : 10), 0, 9900));
+        // patch.setNumber(fId, minmax(patch.floats[fId] + direction * (shiftPressed ? 100 : 10), 0, 9900));
         return true;
     },
 });

@@ -1,8 +1,9 @@
-import { SynthDef } from '@supercollider/server-plus';
 import { readFile, writeFile } from 'fs/promises';
 
 import { PATCH_COUNT, config } from './config';
+import { shiftPressed } from './midi';
 import { fileExist, minmax } from './util';
+import { set } from './sc';
 
 export let currentPatchId = 0;
 export function setCurrentPatchId(id: number) {
@@ -11,31 +12,26 @@ export function setCurrentPatchId(id: number) {
 
 export class Patch {
     protected filename: string;
+    protected data: { [key: string]: number | string } = {};
 
     synth?: string;
     name: string = 'Init patch';
-    floats: { [id: number]: number } = {};
-    strings: { [id: number]: string } = {};
 
-    setString(stringId: number, value: string) {
-        this.strings[stringId] = value;
-
-        // TODO send msg to scserver
-        // Might now even need to check if it is playing, because as long we edit it, we should load it...
-        // const sequences = getPlayingSequencesForPatch(this.id);
-        // for (const { trackId } of sequences) {
-        //     // trackId !== undefined && trackSetString(trackId, value, stringId);
-        // }
+    setData(key: string, value: number | string) {
+        this.data[key] = value;
+        set({ [key]: value });
     }
 
-    setNumber(floatId: number, value: number) {
-        this.floats[floatId] = value;
+    setNumber(key: string, direction: number, min: number, max: number, ratio: number = 1, shiftRatio?: number) {
+        if (shiftRatio === undefined) {
+            shiftRatio = ratio;
+        }
+        const value = minmax(this.getData<number>(key) + direction * (shiftPressed ? shiftRatio : ratio), min, max);
+        this.setData(key, value);
+    }
 
-        // TODO send msg to scserver
-        // const sequences = getPlayingSequencesForPatch(this.id);
-        // for (const { trackId } of sequences) {
-        //     // trackId !== undefined && trackSetNumber(trackId, value, floatId);
-        // }
+    getData<T = number | string>(key: string): T {
+        return this.data[key] as T;
     }
 
     constructor(public readonly id: number) {

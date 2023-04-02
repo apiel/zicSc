@@ -1,4 +1,5 @@
-import ServerPlus, { Synth, boot } from '@supercollider/server-plus';
+import ServerPlus, { Group, Synth, boot } from '@supercollider/server-plus';
+import { OscType } from '@supercollider/server';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { Note } from 'tonal';
@@ -13,6 +14,7 @@ async function jackConnect() {
 }
 
 let server: ServerPlus;
+let group: Group;
 
 interface SynthNode {
     synth: Synth;
@@ -26,19 +28,28 @@ export async function noteOn(name: string, note: number, velocity: number) {
         const synthData = synthsMap.get(name);
         if (synthData && synthData.synthDef) {
             const freq = Note.freq(Note.fromMidi(note)) || 440;
-            const synth = await server.synth(synthData.synthDef, { freq });
+            const synth = await server.synth(synthData.synthDef, { freq }, group);
             synthNodes.push({ synth, note });
         }
     }
 }
 
-export async function noteOff(note: number) {
+export function noteOff(note: number) {
     if (server) {
         // Loop because sometime some notes stay on...
-        for(const node of synthNodes) {
+        for (const node of synthNodes) {
             if (node.note === note) {
                 node.synth.set({ gate: 0 });
             }
+        }
+    }
+}
+
+export function set(obj: { [name: string]: OscType }) {
+    if (server) {
+        // Instead should set to group....
+        for (const node of synthNodes) {
+            node.synth.set(obj);
         }
     }
 }
@@ -53,6 +64,8 @@ export async function noteOff(note: number) {
 export async function sc() {
     server = await boot();
     await jackConnect();
+
+    group = await server.group();
 
     for (const synth of synths) {
         synth.synthDef = await server.synthDef(synth.name, synth.synthDefCode);

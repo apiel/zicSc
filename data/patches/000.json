@@ -1,9 +1,8 @@
 {
-  "id": 0,
-  "name": "demo",
-  "floats": {
-  },
-  "strings": {
-  },
-  "synth": "sik-goo"
+    "id": 0,
+    "name": "demo",
+    "data": {
+        "bwfreq": 800
+    },
+    "synth": "sik-goo"
 }
