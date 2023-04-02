@@ -3,7 +3,7 @@ import { EncoderData } from '../../layout/encoders.layout';
 import { shiftPressed } from '../../midi';
 import { currentPatchId, getPatch, setCurrentPatchId } from '../../patch';
 import { minmax } from '../../util';
-import { synthsMap, synthsNames } from './synths';
+import { synthsNames } from './synths';
 
 export const patchEncoder: EncoderData = {
     node: {
@@ -29,15 +29,15 @@ export const synthEncoder: EncoderData = {
             if (direction === -1) {
                 return false;
             }
-            await patch.setSynth(synthsNames[0]);
+            patch.synth = synthsNames[0];
             return true;
         }
         const synthIndex = synthsNames.indexOf(synth);
         if (synthIndex === 0 && direction === -1) {
-            patch.clearSynth();
+            patch.synth = undefined;
             return true;
         }
-        await patch.setSynth(synthsNames[minmax(synthIndex + direction, 0, synthsNames.length - 1)]);
+        patch.synth = synthsNames[minmax(synthIndex + direction, 0, synthsNames.length - 1)];
         return true;
     },
 };

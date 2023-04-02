@@ -1,5 +1,4 @@
 import ServerPlus, { Synth, boot } from '@supercollider/server-plus';
-// import {} from '@supercollider/';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { synths, synthsMap } from './views/patches/synths';
@@ -13,14 +12,22 @@ async function jackConnect() {
 }
 
 let server: ServerPlus;
-const synthNodes: number[] = [];
+const synthNodes: Synth[] = [];
 
-export async function playSynth(name: string) {
+export async function noteOn(name: string) {
     if (server) {
         const synthData = synthsMap.get(name);
         if (synthData && synthData.synthDef) {
             let synth = await server.synth(synthData.synthDef);
-            synthNodes.push(synth.id);
+            synthNodes.push(synth);
+        }
+    }
+}
+
+export async function noteOff() {
+    if (server) {
+        for (const synth of synthNodes) {
+            synth.set({ gate: 0 });
         }
     }
 }
@@ -28,6 +35,9 @@ export async function playSynth(name: string) {
 // TODO should generate sequencer and load all synth for the sequence
 // export async function startSequence
 // export async function stopSequence
+
+// should nodes id be grouped by patches?
+// should there be a node timeout?
 
 export async function sc() {
     server = await boot();
@@ -39,7 +49,7 @@ export async function sc() {
 
     server.receive.subscribe(([type, nodeId, ...msg]: any) => {
         if (type === '/n_end') {
-            const index = synthNodes.indexOf(nodeId);
+            const index = synthNodes.findIndex(({ id }) => id === nodeId);
             if (index !== -1) {
                 synthNodes.splice(index, 1);
             }

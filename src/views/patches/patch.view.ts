@@ -1,19 +1,18 @@
 import { clear } from 'zic_node_ui';
-import { MidiMsg, MIDI_TYPE } from '../../midi';
+import { renderMessage } from '../../draw/drawMessage';
+import { Encoders, encodersHandler, encodersView } from '../../layout/encoders.layout';
+import { MIDI_TYPE, MidiMsg } from '../../midi';
 import { Patch, currentPatchId, getPatch } from '../../patch';
+import { noteOff, noteOn } from '../../sc';
 import { color } from '../../style';
 import { RenderOptions, viewPadPressed } from '../../view';
+import { pageMidiHandler } from '../controller/pageController';
 import { patchController, patchPadMidiHandler } from '../controller/patchController';
 import { sequencePlayStopMidiHandler, sequenceSelectMidiHandler } from '../controller/sequencerController';
-import { patchMenu, patchMenuHandler } from './patch.menu';
-import { synthsMap } from './synths';
-import { Encoders, encodersHandler, encodersView } from '../../layout/encoders.layout';
-import { renderMessage } from '../../draw/drawMessage';
-import { pageMidiHandler } from '../controller/pageController';
 import { drawPatchTitle } from './draw';
 import { patchEncoder, synthEncoder } from './encoders';
-import { SynthData } from './synths/SynthData';
-import { playSynth } from '../../sc';
+import { patchMenu, patchMenuHandler } from './patch.menu';
+import { synthsMap } from './synths';
 
 export function getPatchView(patch = getPatch(currentPatchId)) {
     if (!patch.synth) {
@@ -102,12 +101,11 @@ async function keyboardMidiHandler({ isKeyboard, message: [type, note, velocity]
     // }
     if (isKeyboard && patch.synth) {
         if (type === MIDI_TYPE.KEY_PRESSED) {
-            // view.keyboard.noteOn(note);
-            await playSynth(patch.synth);
+            await noteOn(patch.synth);
             return true;
         }
         if (type === MIDI_TYPE.KEY_RELEASED) {
-            // view.keyboard.noteOff(note);
+            await noteOff();
             return true;
         }
     }
