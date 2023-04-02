@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'fs/promises';
 import { PATCH_COUNT, config } from './config';
 import { shiftPressed } from './midi';
 import { fileExist, minmax } from './util';
-import { set } from './sc';
+import { setParams } from './sc';
 
 export let currentPatchId = 0;
 export function setCurrentPatchId(id: number) {
@@ -19,7 +19,7 @@ export class Patch {
 
     setData(key: string, value: number | string) {
         this.data[key] = value;
-        set({ [key]: value });
+        setParams({ [key]: value });
     }
 
     setNumber(key: string, direction: number, min: number, max: number, ratio: number = 1, shiftRatio?: number) {

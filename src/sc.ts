@@ -45,12 +45,9 @@ export function noteOff(note: number) {
     }
 }
 
-export function set(obj: { [name: string]: OscType }) {
+export function setParams(obj: { [name: string]: OscType }) {
     if (server) {
-        // Instead should set to group....
-        for (const node of synthNodes) {
-            node.synth.set(obj);
-        }
+        group.set(obj);
     }
 }
 
