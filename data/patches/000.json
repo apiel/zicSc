@@ -1,8 +1,7 @@
 {
     "id": 0,
-    "name": "demo",
+    "name": "demo bubble",
     "data": {
-        "bwfreq": 800
     },
-    "synth": "sik-goo"
+    "synth": "bubble"
 }

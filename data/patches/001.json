@@ -1,0 +1,8 @@
+{
+    "id": 1,
+    "name": "demo piano",
+    "data": {
+        "bwfreq": 800
+    },
+    "synth": "sik-goo"
+}

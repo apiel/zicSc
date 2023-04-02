@@ -22,11 +22,23 @@ export class Patch {
         setParams({ [key]: value });
     }
 
-    setNumber(key: string, direction: number, min: number, max: number, ratio: number = 1, shiftRatio?: number) {
+    setNumber(
+        key: string,
+        defaultValue: number,
+        direction: number,
+        min: number,
+        max: number,
+        ratio: number = 1,
+        shiftRatio?: number,
+    ) {
         if (shiftRatio === undefined) {
             shiftRatio = ratio;
         }
-        const value = minmax(this.getData<number>(key) + direction * (shiftPressed ? shiftRatio : ratio), min, max);
+        const value = minmax(
+            this.getData<number>(key, defaultValue) + direction * (shiftPressed ? shiftRatio : ratio),
+            min,
+            max,
+        );
         this.setData(key, value);
     }
 
@@ -42,8 +54,8 @@ export class Patch {
         }
     }
 
-    getData<T = number | string>(key: string): T {
-        return this.data[key] as T;
+    getData<T = number | string>(key: string, defaultValue: T): T {
+        return (this.data[key] as T) ?? defaultValue;
     }
 
     constructor(public readonly id: number) {
