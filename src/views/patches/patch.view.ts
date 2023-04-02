@@ -101,7 +101,7 @@ async function keyboardMidiHandler({ isKeyboard, message: [type, note, velocity]
     // }
     if (isKeyboard && patch.synth) {
         if (type === MIDI_TYPE.KEY_PRESSED) {
-            await noteOn(patch.synth, note, velocity);
+            await noteOn(patch.synth, note, velocity, patch.getAllData());
             return true;
         }
         if (type === MIDI_TYPE.KEY_RELEASED) {

@@ -16,6 +16,10 @@ async function jackConnect() {
 let server: ServerPlus;
 let group: Group;
 
+interface Params {
+    [name: string]: OscType;
+  }
+
 interface SynthNode {
     synth: Synth;
     note: number;
@@ -23,12 +27,12 @@ interface SynthNode {
 
 const synthNodes: SynthNode[] = [];
 
-export async function noteOn(name: string, note: number, velocity: number) {
+export async function noteOn(name: string, note: number, velocity: number, params: Params) {
     if (server) {
         const synthData = synthsMap.get(name);
         if (synthData && synthData.synthDef) {
             const freq = Note.freq(Note.fromMidi(note)) || 440;
-            const synth = await server.synth(synthData.synthDef, { freq }, group);
+            const synth = await server.synth(synthData.synthDef, { ...params, freq }, group);
             synthNodes.push({ synth, note });
         }
     }
@@ -45,9 +49,9 @@ export function noteOff(note: number) {
     }
 }
 
-export function setParams(obj: { [name: string]: OscType }) {
+export function setParams(params: Params) {
     if (server) {
-        group.set(obj);
+        group.set(params);
     }
 }
 

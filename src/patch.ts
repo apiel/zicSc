@@ -30,6 +30,10 @@ export class Patch {
         this.setData(key, value);
     }
 
+    getAllData() {
+        return this.data;
+    }
+
     getData<T = number | string>(key: string): T {
         return this.data[key] as T;
     }
