@@ -1,19 +1,25 @@
 import { Encoders } from '../../../layout/encoders.layout';
+import { patchMsEncoder, patchNumberEncoder, patchPercentageEncoder } from '../encoders';
 import { SynthData } from './SynthData';
 
+const defaultValue = {
+    dur: 0.15,
+    amp: 1,
+};
+
 const encoders: Encoders = [
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
+    undefined,
+    undefined,
+    patchMsEncoder('dur', 'Duration', defaultValue, 0.05, 2),
+    undefined,
+    patchPercentageEncoder('amp', 'Amplitude', defaultValue),
+    undefined,
+    undefined,
+    undefined,
 ];
 
 const main = {
-  encoders,
+    encoders,
 };
 
 export default new SynthData(

@@ -108,3 +108,19 @@ export const patchPercentageEncoder = (
         formatValue: (value) => (value * 100).toFixed(0),
         ...options,
     });
+
+export const patchMsEncoder = (
+    key: string,
+    title: string,
+    defaultValue: { [key: string]: number | string },
+    min: number | string,
+    max: number | string,
+    { ratio, shiftRatio, ...options }: NumberEncoderOptions = {},
+): EncoderData =>
+    patchNumberEncoder(key, title, defaultValue, min, max, {
+        ratio: 0.01,
+        shiftRatio: 0.05,
+        unit: 'ms',
+        formatValue: (value) => (value * 1000).toFixed(0),
+        ...options,
+    });
