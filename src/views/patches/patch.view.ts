@@ -6,8 +6,14 @@ import { Patch, currentPatchId, getPatch } from '../../patch';
 import { color } from '../../style';
 import { RenderOptions, viewPadPressed } from '../../view';
 import { pageMidiHandler } from '../controller/pageController';
-import { patchController, patchPadMidiHandler } from '../controller/patchController';
-import { sequencePlayStopMidiHandler, sequenceSelectMidiHandler } from '../controller/sequencerController';
+import {
+    patchListController,
+    patchListPageController,
+    patchListPageMidiHandler,
+    patchPagePadMidiHandler,
+    patchViewPageController,
+    updatePatchListStart,
+} from '../controller/patchController';
 import { drawPatchTitle } from './draw';
 import { patchEncoder, synthEncoder } from './encoders';
 import { patchMenu, patchMenuHandler } from './patch.menu';
@@ -35,14 +41,14 @@ export async function patchView({ controllerRendering }: RenderOptions = {}) {
     const patch = getPatch(currentPatchId);
     const view = getPatchView(patch);
 
-    // if (controllerRendering) {
-    //     sequencerController();
-    //     if (viewPadPressed) {
-    //         bankController();
-    //     } else {
-    patchController(view?.views.length, view?.currentView);
-    //     }
-    // }
+    if (controllerRendering) {
+        if (viewPadPressed) {
+            patchListPageController();
+        } else {
+            patchViewPageController(view?.views.length, view?.currentView);
+        }
+        patchListController();
+    }
 
     clear(color.background);
 
@@ -69,12 +75,14 @@ export async function patchMidiHandler(midiMsg: MidiMsg) {
         return menuStatus !== undefined;
     }
 
-    if (viewPadPressed && (await sequencePlayStopMidiHandler(midiMsg))) {
+    if (viewPadPressed) {
+        if (patchListPageMidiHandler(midiMsg)) {
         return true;
-    }
-
-    if (sequenceSelectMidiHandler(midiMsg) || patchPadMidiHandler(midiMsg)) {
-        return true;
+        }   
+    } else {
+        if (patchPagePadMidiHandler(midiMsg)) {
+            return true;
+        }
     }
 
     const patch = getPatch(currentPatchId);
@@ -87,7 +95,7 @@ export async function patchMidiHandler(midiMsg: MidiMsg) {
         return true;
     }
 
-    if (pageMidiHandler(midiMsg, view.changeView.bind(view))) {
+    if (pageMidiHandler(midiMsg, updatePatchListStart)) {
         return true;
     }
 
