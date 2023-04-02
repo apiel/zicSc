@@ -1,4 +1,5 @@
 import { Encoders } from '../../../layout/encoders.layout';
+import { currentPatchId, getPatch } from '../../../patch';
 import { patchMsEncoder, patchNumberEncoder, patchPercentageEncoder } from '../encoders';
 import { SynthData } from './SynthData';
 
@@ -6,7 +7,8 @@ const defaultValue = {
     dec: 1.0,
     cutoff: 100,
     res: 0.2,
-    env: 1000,
+    env: 0.10,
+    wave: 0,
 };
 
 const encoders: Encoders = [
@@ -19,11 +21,19 @@ const encoders: Encoders = [
         unit: 'Hz',
     }),
     undefined,
-    undefined,
-    patchNumberEncoder('env', 'Envelope', defaultValue, 100, 10000, {
-        ratio: 100,
-        shiftRatio: 500,
-    }),
+    {
+        node: {
+            title: 'Wave',
+            getValue: () =>
+                getPatch(currentPatchId).getData<number>('wave', defaultValue['wave'] as number) ? 'Square' : 'Saw',
+        },
+        handler: async (direction) => {
+            const patch = getPatch(currentPatchId);
+            patch.setNumber('wave', defaultValue['wave'] as number, direction, 0, 1);
+            return true;
+        },
+    },
+    patchPercentageEncoder('env', 'Envelope', defaultValue),
     patchPercentageEncoder('res', 'Resonnance', defaultValue),
 ];
 
@@ -34,7 +44,7 @@ const main = {
 export default new SynthData(
     'bass303',
     `SynthDef ( "bass303" , {  arg  out=0, note=60, wave=0, cutoff=100, res=0.2,
-		dec=1.0, env=1000, gate=1, vol=0.2;
+		dec=1.0, env=0.10, gate=1, vol=0.2;
 	
     var filEnv, volEnv, waves;
     var freq = note.midicps;
@@ -45,7 +55,7 @@ export default new SynthData(
 
 	waves = [ Saw .ar(freq, volEnv),  Pulse .ar(freq, 0.5, volEnv)];
 
-	Out .ar(out,  RLPF .ar(  Select .ar(wave, waves), cutoff + (filEnv * env), reso).dup * vol);
+	Out .ar(out,  RLPF .ar(  Select .ar(wave, waves), cutoff + (filEnv * env * 10000), reso).dup * vol);
 })`,
     [main],
 );
