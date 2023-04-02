@@ -1,3 +1,4 @@
+import { SynthDef } from '@supercollider/server-plus';
 import { Encoders } from '../../../layout/encoders.layout';
 import { currentPatchId } from '../../../patch';
 import { minmax } from '../../../util';
@@ -10,6 +11,8 @@ import { patchEncoder, synthEncoder } from '../encoders';
 //   be able to browse only through patch of the selected sequence...
 
 export class SynthData {
+    synthDef?: SynthDef;
+
     currentView = 0;
     lastPatchId = currentPatchId;
 
@@ -36,7 +39,7 @@ export class SynthData {
 
     constructor(
         public name: string,
-        public synthDef: string,
+        public synthDefCode: string,
         public views: {
             encoders: Encoders;
             header?: () => void;

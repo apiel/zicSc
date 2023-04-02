@@ -1,11 +1,8 @@
-import { readFile, writeFile } from 'fs/promises';
 import { SynthDef } from '@supercollider/server-plus';
+import { readFile, writeFile } from 'fs/promises';
 
-import { config } from './config';
+import { PATCH_COUNT, config } from './config';
 import { fileExist, minmax } from './util';
-import { PATCH_COUNT } from './config';
-import { synthsMap } from './views/patches/synths';
-import { addSynth } from './sc';
 
 export let currentPatchId = 0;
 export function setCurrentPatchId(id: number) {
@@ -15,26 +12,10 @@ export function setCurrentPatchId(id: number) {
 export class Patch {
     protected filename: string;
 
-    protected _synth?: string;
-
-    synthDef?: SynthDef;
+    synth?: string;
     name: string = 'Init patch';
     floats: { [id: number]: number } = {};
     strings: { [id: number]: string } = {};
-
-    setSynth(_synth: string | undefined) {
-        this._synth = _synth;
-        return this.loadSynthDef();
-    }
-
-    clearSynth() {
-        this._synth = undefined;
-        this.synthDef = undefined;
-    }
-
-    get synth() {
-        return this._synth;
-    }
 
     setString(stringId: number, value: string) {
         this.strings[stringId] = value;
@@ -66,17 +47,6 @@ export class Patch {
         return writeFile(patchFile, JSON.stringify(this, null, 2));
     }
 
-    async loadSynthDef() {
-        if (this.synth) {
-            const synth = synthsMap.get(this.synth);
-            if (synth) {
-                const name = `patch_${this.id}`;
-                const def = synth.synthDef.replace(/SynthDef\([0-9a-zA-Z\"\-_\\]+,/g, `SynthDef("${name}",`);
-                this.synthDef = await addSynth(name, def);
-            }
-        }
-    }
-
     async load() {
         // if (this.synthDef) { remove ??? }
 
@@ -92,9 +62,8 @@ export class Patch {
         this.set(patch);
     }
 
-    set({ id, synth, ...patch }: Partial<Patch>) {
+    set({ id, ...patch }: Partial<Patch>) {
         Object.assign(this, patch);
-        this.setSynth(synth);
     }
 }
 

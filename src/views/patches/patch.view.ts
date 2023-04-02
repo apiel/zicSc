@@ -100,10 +100,10 @@ async function keyboardMidiHandler({ isKeyboard, message: [type, note, velocity]
     // if (midiMsg.type === 'noteon' && midiMsg.note === 60) {
     //     return true;
     // }
-    if (isKeyboard && patch.synthDef) {
+    if (isKeyboard && patch.synth) {
         if (type === MIDI_TYPE.KEY_PRESSED) {
             // view.keyboard.noteOn(note);
-            await playSynth(patch.synthDef);
+            await playSynth(patch.synth);
             return true;
         }
         if (type === MIDI_TYPE.KEY_RELEASED) {
