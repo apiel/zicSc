@@ -1,30 +1,30 @@
 import { Encoders } from '../../../layout/encoders.layout';
 import { currentPatchId, getPatch } from '../../../patch';
+import { patchNumberEncoder } from '../encoders';
 import { SynthData } from './SynthData';
 
 const d = {
     bwfreq: 800,
+    formfreq: 100,
 };
 
 const encoders: Encoders = [
     undefined,
     undefined,
     undefined,
-    {
-        node: {
-            title: 'bwfreq',
-            getValue: () => getPatch(currentPatchId).getData('bwfreq', d.bwfreq).toString(),
-        },
-        handler: async (direction) => {
-            const patch = getPatch(currentPatchId);
-            patch.setNumber('bwfreq', d.bwfreq, direction, 10, 10000, 10, 100);
-            return true;
-        },
-    },
+    patchNumberEncoder('bwfreq', 'bwfreq', d, 10, 10000, {
+        ratio: 10,
+        shiftRatio: 100,
+        unit: 'Hz',
+    }),
     undefined,
     undefined,
     undefined,
-    undefined,
+    patchNumberEncoder('formfreq', 'formfreq', d, 10, 10000, {
+        ratio: 10,
+        shiftRatio: 100,
+        unit: 'Hz',
+    }),
 ];
 
 const main = {
