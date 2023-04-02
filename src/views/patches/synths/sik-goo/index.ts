@@ -25,7 +25,7 @@ export default new SynthData(
           formfreq,
           bwfreq
       );
-      x = EnvGen.kr(Env.adsr, gate, Latch.kr(gate, gate)) * x;
+      x = EnvGen.kr(Env.adsr, gate, Latch.kr(gate, gate), doneAction: 2) * x;
       Out.ar(out, x);
   })`,
     [main],
