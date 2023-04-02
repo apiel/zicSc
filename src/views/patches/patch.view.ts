@@ -5,9 +5,10 @@ import { MIDI_TYPE, MidiMsg } from '../../midi';
 import { Patch, currentPatchId, getPatch } from '../../patch';
 import { color } from '../../style';
 import { RenderOptions, viewPadPressed } from '../../view';
-import { pageMidiHandler } from '../controller/pageController';
+import { pageMidiHandler, pagePressed } from '../controller/pageController';
 import {
     patchListController,
+    patchListMidiHanlder,
     patchListPageController,
     patchListPageMidiHandler,
     patchPagePadMidiHandler,
@@ -42,7 +43,7 @@ export async function patchView({ controllerRendering }: RenderOptions = {}) {
     const view = getPatchView(patch);
 
     if (controllerRendering) {
-        if (viewPadPressed) {
+        if (viewPadPressed || pagePressed) {
             patchListPageController();
         } else {
             patchViewPageController(view?.views.length, view?.currentView);
@@ -85,6 +86,14 @@ export async function patchMidiHandler(midiMsg: MidiMsg) {
         }
     }
 
+    if (patchListMidiHanlder(midiMsg)) {
+        return true;
+    }
+
+    if (pageMidiHandler(midiMsg, updatePatchListStart)) {
+        return true;
+    }
+
     const patch = getPatch(currentPatchId);
     const view = getPatchView(patch);
     if (!view) {
@@ -92,10 +101,6 @@ export async function patchMidiHandler(midiMsg: MidiMsg) {
     }
 
     if (await keyboardMidiHandler(midiMsg, patch)) {
-        return true;
-    }
-
-    if (pageMidiHandler(midiMsg, updatePatchListStart)) {
         return true;
     }
 

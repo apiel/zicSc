@@ -3,7 +3,7 @@ import { MIDI_TYPE, MidiMsg, midiOutController } from '../../midi';
 import { akaiApcKey25 } from '../../midi/akaiApcKey25';
 import { padBanks } from './sequencerController';
 import { getPatchView } from '../patches/patch.view';
-import { patches } from '../../patch';
+import { patches, setCurrentPatchId } from '../../patch';
 import { padSeq } from './sequencerController';
 import { synths } from '../patches/synths';
 import { minmax } from '../../util';
@@ -53,6 +53,21 @@ export function patchListController() {
     }
 }
 
+export function patchListMidiHanlder({ isController, message: [type, padKey] }: MidiMsg) {
+    if (isController) {
+        if (type === MIDI_TYPE.KEY_RELEASED) {
+            const index = padSeq.findIndex((p) => p === padKey);
+            if (index !== -1) {
+                setCurrentPatchId(patchListStart + index);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// FIXME, right now only show 10 bank for patch but there should be 25...
+
 export function patchListPageController() {
     if (midiOutController?.port) {
         console.log('patchListPageController');
@@ -69,7 +84,7 @@ export function patchListPageMidiHandler({ isController, message: [type, padKey]
         if (type === MIDI_TYPE.KEY_RELEASED) {
             const index = padBanks.findIndex((p) => p === padKey);
             if (index !== -1) {
-                patchListStart = index * padSeq.length;
+                patchListStart = minmax(index * padSeq.length, 0, patches.length - padSeq.length);
                 return true;
             }
         }

@@ -1,22 +1,24 @@
 import { MidiMsg, MIDI_TYPE } from '../../midi';
 import { akaiApcKey25 } from '../../midi/akaiApcKey25';
 
+export let pagePressed = false;
+
 export function pageMidiHandler({ isController, message: [type, padKey] }: MidiMsg, changePage: (direction: number) => void) {
     if (isController) {
         switch (padKey) {
             case akaiApcKey25.pad.down: {
-                if (type === MIDI_TYPE.KEY_RELEASED) {
+                pagePressed = type === MIDI_TYPE.KEY_PRESSED;
+                if (type === MIDI_TYPE.KEY_PRESSED) {
                     changePage(+1);
-                    return true;
                 }
-                return false;
+                return true;
             }
             case akaiApcKey25.pad.up: {
-                if (type === MIDI_TYPE.KEY_RELEASED) {
+                pagePressed = type === MIDI_TYPE.KEY_PRESSED;
+                if (type === MIDI_TYPE.KEY_PRESSED) {
                     changePage(-1);
-                    return true;
                 }
-                return false;
+                return true;
             }
         }
     }
