@@ -99,7 +99,7 @@ export const patchPercentageEncoder = (
     key: string,
     title: string,
     defaultValue: { [key: string]: number | string },
-    { ratio, shiftRatio, ...options }: NumberEncoderOptions = {},
+    options: NumberEncoderOptions = {},
 ): EncoderData =>
     patchNumberEncoder(key, title, defaultValue, 0, 1, {
         ratio: 0.01,
@@ -115,12 +115,38 @@ export const patchMsEncoder = (
     defaultValue: { [key: string]: number | string },
     min: number | string,
     max: number | string,
-    { ratio, shiftRatio, ...options }: NumberEncoderOptions = {},
+    options: NumberEncoderOptions = {},
 ): EncoderData =>
     patchNumberEncoder(key, title, defaultValue, min, max, {
         ratio: 0.01,
         shiftRatio: 0.05,
         unit: 'ms',
         formatValue: (value) => (value * 1000).toFixed(0),
+        ...options,
+    });
+
+export const patchHzEncoder = (
+    key: string,
+    title: string,
+    defaultValue: { [key: string]: number | string },
+    options: NumberEncoderOptions = {},
+): EncoderData =>
+    patchNumberEncoder(key, title, defaultValue, 10, 10000, {
+        ratio: 10,
+        shiftRatio: 100,
+        unit: 'Hz',
+        ...options,
+    });
+
+export const patchLFOHzEncoder = (
+    key: string,
+    title: string,
+    defaultValue: { [key: string]: number | string },
+    options: NumberEncoderOptions = {},
+): EncoderData =>
+    patchNumberEncoder(key, title, defaultValue, 0.1, 10, {
+        ratio: 0.1,
+        shiftRatio: 1,
+        unit: 'Hz',
         ...options,
     });

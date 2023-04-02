@@ -1,6 +1,5 @@
 import { Encoders } from '../../../layout/encoders.layout';
-import { currentPatchId, getPatch } from '../../../patch';
-import { patchNumberEncoder } from '../encoders';
+import { patchHzEncoder } from '../encoders';
 import { SynthData } from './SynthData';
 
 const d = {
@@ -12,19 +11,11 @@ const encoders: Encoders = [
     undefined,
     undefined,
     undefined,
-    patchNumberEncoder('bwfreq', 'bwfreq', d, 10, 10000, {
-        ratio: 10,
-        shiftRatio: 100,
-        unit: 'Hz',
-    }),
+    patchHzEncoder('bwfreq', 'bwfreq', d),
     undefined,
     undefined,
     undefined,
-    patchNumberEncoder('formfreq', 'formfreq', d, 10, 10000, {
-        ratio: 10,
-        shiftRatio: 100,
-        unit: 'Hz',
-    }),
+    patchHzEncoder('formfreq', 'formfreq', d),
 ];
 
 const main = {
