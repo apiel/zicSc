@@ -4,7 +4,7 @@ SynthDef(\droneFM, {
 	amp=0.1, dur=55, ampM=0.84 , pan=0;
 	var sig, car1, mod1, car2, mod2, car3, mod3, env, index;
 	index = LFNoise1.kr(0.2).range(2, 12);
-	env = EnvGen.kr(Env.new([0, 0.70, 0.70, 0], [dur*0.333, dur*0.333, dur*0.333]), doneAction:2);
+	env = EnvGen.kr(Env.new([0, 0.70, 0.70, 0], [dur*0.333, dur*0.333, dur*0.333]), doneAction: Done.freeSelf);
 	mod1 = SinOsc.ar([nFreq * m1Ratio, nFreq+0.7 * m1Ratio], mul:nFreq * m1Ratio * index) * ampM;
 	car1 = SinOsc.ar(f1Freq + mod1);
 	mod2 = SinOsc.ar([nFreq * m2Ratio, nFreq+1.4 * m2Ratio], mul:nFreq * m2Ratio * index) * ampM;

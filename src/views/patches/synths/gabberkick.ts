@@ -3,7 +3,7 @@ import { patchHzEncoder, patchMsEncoder, patchPercentageEncoder } from '../encod
 import { SynthData } from './SynthData';
 
 const defaultValue = {
-    dur: 0.3,
+    dur: 1.0,
     ffreq: 3000,
     bend: 1,
 };
@@ -36,7 +36,7 @@ export default new SynthData(
         snd = LPF.ar(snd, 100).dup(2) + high;
         snd = RLPF.ar(snd, 7000, 2);
         snd = BPeakEQ.ar(snd, \\ffreq.kr(3000) * XLine.kr(1, 0.8, 0.3), 0.5, 15);
-        snd = snd * Env.perc(0.001, \\dur.kr(0.3)).ar(2, \\gate.kr(1), doneAction: 2);
+        snd = snd * Env.perc(0.001, \\dur.kr(1.0)).ar(2, \\gate.kr(1), doneAction: Done.freeSelf);
         Out.ar(\\out.kr(0), snd * \\amp.kr(0.1));
     })`,
     [main],

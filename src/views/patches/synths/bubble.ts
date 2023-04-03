@@ -53,7 +53,7 @@ export default new SynthData(
       var releaseTime=Rand(minReleaseTime, maxReleaseTime);
       f = LFSaw.kr(wobble, 0, 24, LFSaw.kr([innerWobble, innerWobble / 1.106], 0, 3, 80)).midicps;
       zout = CombN.ar(SinOsc.ar(f, 0, 0.04), 0.2, 0.2, 4);  // echoing sine wave
-      zout = zout * EnvGen.kr(Env.linen(releaseTime: releaseTime), doneAction: 2);
+      zout = zout * EnvGen.kr(Env.linen(releaseTime: releaseTime), doneAction: Done.freeSelf);
       Out.ar(out, zout);
   });`,
     [main],
