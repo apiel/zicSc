@@ -43,11 +43,10 @@ const main = {
 
 export default new SynthData(
     'bass303',
-    `SynthDef ( "bass303" , {  arg  out=0, note=60, wave=0, cutoff=100, res=0.2,
+    `SynthDef ( "bass303" , {  arg  out=0, freq = 440, wave=0, cutoff=100, res=0.2,
 		dec=1.0, env=0.10, gate=1, vol=0.2;
 	
     var filEnv, volEnv, waves;
-    var freq = note.midicps;
     var reso = (1-res)*(0.97)+0.03;
 
 	volEnv =  EnvGen .ar( Env .new([10e-10, 1, 1, 10e-10], [0.01, 0, dec],  'exp' ), gate, doneAction: Done.freeSelf);

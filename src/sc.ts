@@ -2,6 +2,7 @@ import ServerPlus, { Group, Synth, boot } from '@supercollider/server-plus';
 import { OscType } from '@supercollider/server';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { Note } from 'tonal';
 import { synths, synthsMap } from './views/patches/synths';
 
 const execAsync = promisify(exec);
@@ -30,7 +31,8 @@ export async function noteOn(name: string, note: number, velocity: number, param
     if (server) {
         const synthData = synthsMap.get(name);
         if (synthData && synthData.synthDef) {
-            const synth = await server.synth(synthData.synthDef, { ...params, note, velocity }, group);
+            const freq = Note.freq(Note.fromMidi(note)) || 440;
+            const synth = await server.synth(synthData.synthDef, { ...params, freq, velocity }, group);
             synthNodes.push({ synth, note });
         }
     }

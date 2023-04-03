@@ -11,9 +11,8 @@ const main = {
 
 export default new SynthData(
     'hoover',
-    `SynthDef("hoover", {| note = 60 |
-        var snd, freq, bw, delay, decay;
-        freq = note.midicps;
+    `SynthDef("hoover", {| freq = 440 |
+        var snd, bw, delay, decay;
         freq = freq * Env([-5, 6, 0], [0.1, 1.7], [\\lin, -4]).kr.midiratio;
         bw = 1.035;
         snd = { DelayN.ar(Saw.ar(freq * ExpRand(bw, 1 / bw)) + Saw.ar(freq * 0.5 * ExpRand(bw, 1 / bw)), 0.01, Rand(0, 0.01)) }.dup(20);

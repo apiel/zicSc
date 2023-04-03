@@ -25,9 +25,9 @@ const main = {
 
 export default new SynthData(
     'gabberkick',
-    `SynthDef("gabberkick", { | note = 60 |
-        var snd, freq, high, lfo;
-        freq = note.midicps * (Env.perc(0.001, 0.08, curve: -1).ar * 48 * \\bend.kr(1)).midiratio;
+    `SynthDef("gabberkick", { | freq = 440 |
+        var snd, high, lfo;
+        freq = freq * (Env.perc(0.001, 0.08, curve: -1).ar * 48 * \\bend.kr(1)).midiratio;
         snd = Saw.ar(freq);
         snd = (snd * 100).tanh + ((snd.sign - snd) * -8.dbamp);
         high = HPF.ar(snd, 300);
