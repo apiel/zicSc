@@ -90,3 +90,41 @@ p =	Pbind(
 p.stop;
 
 s=1
+
+#### bla
+
+(
+    ~step1 = PatternProxy(
+        Pbind(
+        \degree, Pseq([1], 1),
+        )
+    );
+    ~step1b = PatternProxy(
+        Pbind(
+        \degree, Pseq([9], 1),
+        \dur, 4
+        )
+    );
+    ~step2 = PatternProxy(
+        Pbind(
+        \degree, Pseq([2], 1),
+        )
+    );
+    ~step3 = PatternProxy(
+        Pbind(
+        \degree, Pseq([3], 1),
+        )
+    );
+    ~step4 = PatternProxy(
+        Pbind(
+        \degree, Pseq([4], 1),
+		\x, Pfunc { "last".postln; if (s > 0, { "should stop".postln; p.stop }); 1 }
+        )
+    );
+
+~steps = PatternProxy(Ppar([Pseq([~step1,~step2,~step3,~step4], inf), Pseq([~step1b], inf)]));
+
+    s = 0;
+    p = ~steps.play;
+)
+s = 1
