@@ -90,7 +90,7 @@ s = 1
     ~step3 = PatternProxy((\degree: 3));
     ~step4 = PatternProxy((\degree: { "last".postln; if (s > 0, { "should stop".postln; p.stop }); 4 }));
 
-    ~steps = PatternProxy(Ppar([Pseq([~step1,~step2,~step3,~step4], inf), Pseq([~step1b], inf)]));
+    ~steps = PatternProxy(Ppar([Pseq([~step1,~step2,~step3,~step4], inf), ~step1b]));
 
     s = 0;
     p = ~steps.play;
