@@ -45,3 +45,8 @@ a.next;
 // or
 // 7.do({ (100.rand > 95).postln; });
 if(100.rand > 80, 1, 0);
+// or https://doc.sccode.org/Classes/Pprob.html
+x = Pprob([0, 1]).asStream;
+if(x.next>0.9,1,0)
+
+// https://doc.sccode.org/Guides/Randomness.html
