@@ -36,5 +36,12 @@ s = 1
 )
 s = 1
 
-
-
+// step probability
+a = Pwrand([0,1], [0.95, 0.05], inf).asStream;
+a.next
+// or could use
+a = Pwhite(0.0, 1.0, inf).asStream;
+a.next;
+// or
+// 7.do({ (100.rand > 95).postln; });
+if(100.rand > 80, 1, 0);
