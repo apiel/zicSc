@@ -3,6 +3,7 @@ import { config } from './config';
 import { setCurrentPatchId } from './patch';
 import { fileExist } from './util';
 import { MAX_STEPS_IN_PATTERN, SEQUENCE_COUNT } from './config';
+import { playScSequence, stopScSequence } from './sc';
 
 export interface Step {
     note: number;
@@ -100,19 +101,23 @@ export function cleanActiveStep(trackId: number) {
 
 export function playSequence(sequence: Sequence, playing = true, next?: boolean) {
     if (sequence.trackId !== undefined) {
-        if (playing) {
-            const playingSeq = getPlayingSequence(sequence.trackId);
-            if (playingSeq) {
-                playingSeq.playing = false;
-            }
-        }
         sequence.playing = playing;
-        // TODO send message to scserver
+        if (playing) {
+            console.log('playSequence');
+            // const playingSeq = getPlayingSequence(sequence.trackId);
+            // if (playingSeq) {
+            //     playingSeq.playing = false;
+            // }
+            return playScSequence(sequence);
+        } else {
+            console.log('stopSequence');
+            return stopScSequence(sequence);
+        }
     }
 }
 
 export function toggleSequence(sequence: Sequence) {
-    playSequence(sequence, !sequence.playing, true);
+    return playSequence(sequence, !sequence.playing, true);
 }
 
 function getFilepath(id: number) {

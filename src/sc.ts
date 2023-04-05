@@ -1,9 +1,11 @@
 import ServerPlus, { Group, Synth, boot } from '@supercollider/server-plus';
+import lang from '@supercollider/lang';
 import { OscType } from '@supercollider/server';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { Note } from 'tonal';
 import { synths, synthsMap } from './views/patches/synths';
+import { Sequence } from './sequence';
 
 const execAsync = promisify(exec);
 
@@ -13,6 +15,7 @@ async function jackConnect() {
     await execAsync('jack_connect SuperCollider:out_2 system:playback_2');
 }
 
+let client: lang;
 let server: ServerPlus;
 let group: Group;
 
@@ -55,6 +58,47 @@ export function setParams(params: Params) {
     }
 }
 
+export function playScSequence(sequence: Sequence) {
+    let steps = '';
+    let voice1 = '~voice1 = Pseq([';
+    for (let i = 0; i < sequence.stepCount; i++) {
+        const step = sequence.steps[i];
+        if (step[0]) {
+            // FIXME
+            steps += `~step${i} = PatternProxy((\\midinote: ${step[0].note}, \\instrument: "psykick", \\dur: 0.25));\n`;
+        } else {
+            steps += `~step${i} = PatternProxy((\\degree: Rest(), \\dur: 0.25));\n`;
+        }
+        voice1 += `~step${i},`;
+    }
+    voice1 += '], inf)';
+    // const code = voice1 + '.play; )';
+    const code = `(
+        ${steps}
+
+        ~lastStep = PatternProxy(Pseq([
+            (\\degree: Rest(), dur: ${(sequence.stepCount - 1) * 0.25}), 
+            (\\degree: { "last".postln; if (s > 0, { "should stop".postln; p.stop }); Rest() }, dur: 0.25)
+        ], inf));
+  
+        ~steps = PatternProxy(
+            Ppar([
+                ${voice1}, 
+                ~lastStep,
+            ])
+        );
+    
+        s = 0;
+        p = ~steps.play;
+    )`;
+    console.log(code);
+    return client.interpret(code);
+}
+
+export function stopScSequence(sequence: Sequence) {
+    return client.interpret('s = 1');
+}
+
 // TODO should generate sequencer and load all synth for the sequence
 // export async function startSequence
 // export async function stopSequence
@@ -63,8 +107,12 @@ export function setParams(params: Params) {
 // should there be a node timeout?
 
 export async function sc() {
-    server = await boot();
-    await jackConnect();
+    // server = await boot();
+    // await jackConnect();
+
+    server = new ServerPlus();
+    await server.connect();
+    client = await lang.boot();
 
     group = await server.group();
 
@@ -80,4 +128,11 @@ export async function sc() {
             }
         }
     });
+
+    // await client.interpret("Pbind(\\note, Pseq([1,2,3,4], 4), \\dur, 0.25).play");
+    // setTimeout(async () => {
+    //     await client.interpret("(\\instrument: \"bubble\", \\note: 7, \\dur: 0.25).play");
+    // }, 2000);
+
+    // server
 }
