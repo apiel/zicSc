@@ -22,10 +22,10 @@ if (process.argv.includes('--client')) {
 }
 
 (async function () {
-    await sc();
     await loadTracks();
     await loadPatches();
     await loadSequences();
+    await sc(); // Load supercollider after patch and sequences
     setSelectedSequenceId(0);
     await renderView({ controllerRendering: true });
     render();

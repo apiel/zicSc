@@ -27,7 +27,7 @@ export const config = {
 };
 
 export const MAX_STEPS_IN_PATTERN = 64;
-export const SEQUENCE_COUNT = 5 * 6 * 5 * 5; // 5*6 pads and 5*5 banks
+export const SEQUENCE_COUNT = 5 * 6 * 10; // 5*6 pads and 10 banks
 export const PATCH_COUNT = SEQUENCE_COUNT;
 export const NOTE_END = 119;
 export const NOTE_START = 12;

@@ -4,7 +4,7 @@ import { PATCH_COUNT, config } from './config';
 import { shiftPressed } from './midi';
 import { noteOff, noteOn, setParams } from './sc';
 import { fileExist, minmax } from './util';
-import { Group } from '@supercollider/server-plus';
+import { Group, SynthDef } from '@supercollider/server-plus';
 
 export let currentPatchId = 0;
 export function setCurrentPatchId(id: number) {
@@ -19,6 +19,7 @@ export class Patch {
     name: string = 'Init patch';
 
     group?: Group;
+    synthDef?: SynthDef;
 
     setData(key: string, value: number | string) {
         this.data[key] = value;

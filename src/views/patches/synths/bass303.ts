@@ -43,7 +43,7 @@ const main = {
 
 export default new SynthData(
     'bass303',
-    `SynthDef ( "bass303" , {  arg  out=0, freq = 440, wave=0, cutoff=100, res=0.2,
+    `SynthDef("bass303", {  arg  out=0, freq = 440, wave=0, cutoff=100, res=0.2,
 		dec=1.0, env=0.10, gate=1, amp=1;
 	
     var filEnv, volEnv, waves;
