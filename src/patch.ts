@@ -19,7 +19,7 @@ export class Patch {
 
     setData(key: string, value: number | string) {
         this.data[key] = value;
-        setParams({ [key]: value });
+        setParams(this, key);
     }
 
     setNumber(
@@ -42,9 +42,13 @@ export class Patch {
         this.setData(key, value);
     }
 
+    get params() {
+        return this.data;
+    }
+
     noteOn(note: number, velocity: number) {
         if (this.synth) {
-            return noteOn(this.synth, note, velocity, this.data);
+            return noteOn(this.synth, note, velocity, this);
         }
     }
 

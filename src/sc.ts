@@ -6,6 +6,7 @@ import { promisify } from 'util';
 import { Note } from 'tonal';
 import { synths, synthsMap } from './views/patches/synths';
 import { Sequence } from './sequence';
+import { Patch, patches } from './patch';
 
 const execAsync = promisify(exec);
 
@@ -17,11 +18,11 @@ async function jackConnect() {
 
 let client: lang;
 let server: ServerPlus;
-let group: Group;
+let groups: Group[] = [];
 
-interface Params {
-    [name: string]: OscType;
-}
+// interface Params {
+//     [name: string]: OscType;
+// }
 
 interface SynthNode {
     synth: Synth;
@@ -30,12 +31,12 @@ interface SynthNode {
 
 const synthNodes: SynthNode[] = [];
 
-export async function noteOn(name: string, note: number, velocity: number, params: Params) {
+export async function noteOn(name: string, note: number, velocity: number, patch: Patch) {
     if (server) {
         const synthData = synthsMap.get(name);
         if (synthData && synthData.synthDef) {
             const freq = Note.freq(Note.fromMidi(note)) || 440;
-            const synth = await server.synth(synthData.synthDef, { ...params, freq, velocity }, group);
+            const synth = await server.synth(synthData.synthDef, { ...patch.params, freq, velocity }, groups[patch.id]);
             synthNodes.push({ synth, note });
         }
     }
@@ -52,9 +53,9 @@ export function noteOff(note: number) {
     }
 }
 
-export function setParams(params: Params) {
+export function setParams({ id, params }: Patch, key: string) {
     if (server) {
-        group.set(params);
+        groups[id].set({ [key]: params[key] });
     }
 }
 
@@ -114,7 +115,26 @@ export async function sc() {
     await server.connect();
     client = await lang.boot();
 
-    group = await server.group();
+    // group = await server.group();
+    for (let { id } of patches) {
+        // @supercollider/server-plus adds these methods:
+        // Create a group and wait for confirmation. Nice and simple
+        // groups[id] = await server.group(); // Doesnt work
+
+        // const groupNodeID = server.state.nextNodeID();
+        // server.send.msg(['/g_new', id + 2000]); // This work but it's ugly
+        // Because supercollider js doesnt work properly with nextNodeID...
+        // so instead to create group using osc messages, let's the sclang taking care of it!!
+
+        const newGroup = await client.interpret(`Group.new;`);
+        if (newGroup.string) {
+            groups[id] = new Group(server, Number((newGroup.string as string).slice(6, -1)));
+        }
+
+        if (id > 10) {
+            break;
+        }
+    }
 
     for (const synth of synths) {
         synth.synthDef = await server.synthDef(synth.name, synth.synthDefCode);
