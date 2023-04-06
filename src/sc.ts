@@ -5,8 +5,8 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { Note } from 'tonal';
 import { synths, synthsMap } from './views/patches/synths';
-import { Sequence } from './sequence';
-import { Patch, patches } from './patch';
+import { Sequence, Step } from './sequence';
+import { Patch, getPatch, patches } from './patch';
 
 const execAsync = promisify(exec);
 
@@ -18,7 +18,6 @@ async function jackConnect() {
 
 let client: lang;
 let server: ServerPlus;
-let groups: Group[] = [];
 
 // interface Params {
 //     [name: string]: OscType;
@@ -36,7 +35,7 @@ export async function noteOn(name: string, note: number, velocity: number, patch
         const synthData = synthsMap.get(name);
         if (synthData && synthData.synthDef) {
             const freq = Note.freq(Note.fromMidi(note)) || 440;
-            const synth = await server.synth(synthData.synthDef, { ...patch.params, freq, velocity }, groups[patch.id]);
+            const synth = await server.synth(synthData.synthDef, { ...patch.params, freq, velocity }, patch.group);
             synthNodes.push({ synth, note });
         }
     }
@@ -53,10 +52,15 @@ export function noteOff(note: number) {
     }
 }
 
-export function setParams({ id, params }: Patch, key: string) {
-    if (server) {
-        groups[id].set({ [key]: params[key] });
+export function setParams({ group, params }: Patch, key: string) {
+    if (server && group) {
+        group.set({ [key]: params[key] });
     }
+}
+
+function getSynthStep(step: Step) {
+    const patch = getPatch(step.patchId);
+    return `(\\midinote: ${step.note}, \\instrument: "${patch.synth}", \\dur: 0.25, \\group: ${patch.group?.id})`;
 }
 
 export function playScSequence(sequence: Sequence) {
@@ -65,15 +69,13 @@ export function playScSequence(sequence: Sequence) {
     for (let i = 0; i < sequence.stepCount; i++) {
         const step = sequence.steps[i];
         if (step[0]) {
-            // FIXME
-            steps += `~step${i} = PatternProxy((\\midinote: ${step[0].note}, \\instrument: "psykick", \\dur: 0.25));\n`;
+            steps += `~step${i} = PatternProxy(${getSynthStep(step[0])});\n`;
         } else {
             steps += `~step${i} = PatternProxy((\\degree: Rest(), \\dur: 0.25));\n`;
         }
         voice1 += `~step${i},`;
     }
     voice1 += '], inf)';
-    // const code = voice1 + '.play; )';
     const code = `(
         ${steps}
 
@@ -100,13 +102,6 @@ export function stopScSequence(sequence: Sequence) {
     return client.interpret('s = 1');
 }
 
-// TODO should generate sequencer and load all synth for the sequence
-// export async function startSequence
-// export async function stopSequence
-
-// should nodes id be grouped by patches?
-// should there be a node timeout?
-
 export async function sc() {
     // server = await boot();
     // await jackConnect();
@@ -115,24 +110,12 @@ export async function sc() {
     await server.connect();
     client = await lang.boot();
 
-    // group = await server.group();
-    for (let { id } of patches) {
-        // @supercollider/server-plus adds these methods:
-        // Create a group and wait for confirmation. Nice and simple
-        // groups[id] = await server.group(); // Doesnt work
-
-        // const groupNodeID = server.state.nextNodeID();
-        // server.send.msg(['/g_new', id + 2000]); // This work but it's ugly
-        // Because supercollider js doesnt work properly with nextNodeID...
-        // so instead to create group using osc messages, let's the sclang taking care of it!!
-
+    for (let patch of patches) {
         const newGroup = await client.interpret(`Group.new;`);
         if (newGroup.string) {
-            groups[id] = new Group(server, Number((newGroup.string as string).slice(6, -1)));
-        }
-
-        if (id > 10) {
-            break;
+            patch.group = new Group(server, Number((newGroup.string as string).slice(6, -1)));
+            // Increase node id to avoid conflict
+            server.state.nextNodeID();
         }
     }
 
