@@ -61,7 +61,11 @@ export function setParams({ group, params }: Patch, key: string) {
 
 function getSynthStep(step: Step) {
     const patch = getPatch(step.patchId);
-    return `(\\midinote: ${step.note}, \\instrument: "${patch.synth}", \\dur: 0.25, \\group: ${patch.group?.id})`;
+    let params = '';
+    // for (const key in patch.params) {
+    //     params += `, \\${key}: { p.patch_${patch.id}.${key} }`;
+    // }
+    return `(\\midinote: ${step.note}, \\instrument: "${patch.synth}", \\dur: 0.25, \\group: ${patch.group?.id})${params}`;
 }
 
 export function playScSequence(sequence: Sequence) {
@@ -93,7 +97,7 @@ export function playScSequence(sequence: Sequence) {
         );
     
         s = 0;
-        p = ~steps.play;
+        ~sequence_${sequence.id} = ~steps.play;
     )`;
     console.log(code);
     return client.interpret(code);
@@ -101,6 +105,15 @@ export function playScSequence(sequence: Sequence) {
 
 export function stopScSequence(sequence: Sequence) {
     return client.interpret('s = 1');
+}
+
+function getPatchValues(patch: Patch) {
+    let paramValues = `\\patch_${patch.id}: (`;
+    for (const key in patch.params) {
+        paramValues += `\\${key}: ${patch.params[key]},`;
+    }
+    paramValues += '),';
+    return paramValues;
 }
 
 export async function sc() {
@@ -111,6 +124,7 @@ export async function sc() {
     await server.connect();
     client = await lang.boot();
 
+    let patchesValues = 'p = (';
     for (let patch of patches) {
         const newGroup = await client.interpret(`Group.new;`);
         if (newGroup.string) {
@@ -118,12 +132,16 @@ export async function sc() {
             // Increase node id to avoid conflict
             server.state.nextNodeID();
         }
+        patchesValues += getPatchValues(patch);
 
         // FIXME remove this
         if (patch.id > 7) {
             break;
         }
     }
+    patchesValues += ');';
+    console.log({patchesValues});
+    await client.interpret(patchesValues);
 
     for (const synth of synths) {
         synth.synthDef = await server.synthDef(synth.name, synth.synthDefCode);
