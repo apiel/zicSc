@@ -40,4 +40,5 @@ export default new SynthData(
         Out.ar(\\out.kr(0), snd * 0.1 * amp);
     })`,
     [main],
+    defaultValue,
 );

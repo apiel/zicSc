@@ -1,7 +1,8 @@
 {
-    "id": 5,
-    "name": "Psy Kick",
-    "data": {
-    },
-    "synth": "psykick"
+  "data": {
+    "dur": 0.15,
+    "amp": 1
+  },
+  "name": "Psy Kick",
+  "synth": "psykick"
 }

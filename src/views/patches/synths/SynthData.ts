@@ -44,6 +44,7 @@ export class SynthData {
             encoders: Encoders;
             header?: () => void;
         }[],
+        public defaultValue: { [key: string]: number | string },
     ) {
         // Force first view to have patch and synth encoder
         const { encoders: [_skip1, _skip2, ...encoders], ...rest } = this.views[0];

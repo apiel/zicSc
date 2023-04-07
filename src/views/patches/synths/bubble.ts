@@ -57,4 +57,5 @@ export default new SynthData(
       Out.ar(out, zout * amp);
   });`,
     [main],
+    defaultValue,
 );

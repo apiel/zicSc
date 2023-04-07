@@ -7,7 +7,7 @@ const defaultValue = {
     dec: 1.0,
     cutoff: 100,
     res: 0.2,
-    env: 0.10,
+    env: 0.1,
     wave: 0,
 };
 
@@ -57,4 +57,5 @@ export default new SynthData(
 	Out .ar(out,  RLPF .ar(  Select .ar(wave, waves), cutoff + (filEnv * env * 10000), reso).dup * amp);
 })`,
     [main],
+    defaultValue,
 );

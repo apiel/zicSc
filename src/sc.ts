@@ -1,12 +1,11 @@
-import ServerPlus, { Group, Synth, boot } from '@supercollider/server-plus';
 import lang from '@supercollider/lang';
-import { OscType } from '@supercollider/server';
+import ServerPlus, { Group, Synth } from '@supercollider/server-plus';
 import { exec } from 'child_process';
-import { promisify } from 'util';
 import { Note } from 'tonal';
-import { synths, synthsMap } from './views/patches/synths';
-import { Sequence, Step } from './sequence';
+import { promisify } from 'util';
 import { Patch, getPatch, patches } from './patch';
+import { Sequence, Step } from './sequence';
+import { synths, synthsMap } from './views/patches/synths';
 
 const execAsync = promisify(exec);
 
@@ -30,7 +29,7 @@ interface SynthNode {
 
 const synthNodes: SynthNode[] = [];
 
-export async function noteOn(name: string, note: number, velocity: number, patch: Patch) {
+export async function noteOn(note: number, velocity: number, patch: Patch) {
     if (server) {
         if (patch.synth) {
             const _synth = synthsMap.get(patch.synth);

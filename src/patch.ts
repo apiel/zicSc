@@ -1,10 +1,11 @@
 import { readFile, writeFile } from 'fs/promises';
 
+import { Group } from '@supercollider/server-plus';
 import { PATCH_COUNT, config } from './config';
 import { shiftPressed } from './midi';
 import { noteOff, noteOn, setParams } from './sc';
 import { fileExist, minmax } from './util';
-import { Group, SynthDef } from '@supercollider/server-plus';
+import { synthsMap } from './views/patches/synths';
 
 export let currentPatchId = 0;
 export function setCurrentPatchId(id: number) {
@@ -12,13 +13,37 @@ export function setCurrentPatchId(id: number) {
 }
 
 export class Patch {
-    protected filename: string;
+    protected _filename: string;
+    // Keep without _underscore to be saved in json
     protected data: { [key: string]: number | string } = {};
+    protected _group?: Group;
+    protected _synth?: string;
 
-    synth?: string;
     name: string = 'Init patch';
 
-    group?: Group;
+    get synth() {
+        return this._synth;
+    }
+
+    set synth(synth: string | undefined) {
+        this._synth = synth;
+        if (synth) {
+            const _synth = synthsMap.get(synth);
+            this.data = { ..._synth?.defaultValue, ...this.data };
+        }
+    }
+
+    get group() {
+        return this._group;
+    }
+
+    set group(group: Group | undefined) {
+        this._group = group;
+    }
+
+    get params() {
+        return this.data;
+    }
 
     setData(key: string, value: number | string) {
         this.data[key] = value;
@@ -45,13 +70,9 @@ export class Patch {
         this.setData(key, value);
     }
 
-    get params() {
-        return this.data;
-    }
-
     noteOn(note: number, velocity: number) {
         if (this.synth) {
-            return noteOn(this.synth, note, velocity, this);
+            return noteOn(note, velocity, this);
         }
     }
 
@@ -65,19 +86,33 @@ export class Patch {
         return (this.data[key] as T) ?? defaultValue;
     }
 
-    constructor(public readonly id: number) {
-        this.filename = `${this.id.toString().padStart(3, '0')}.json`;
+    get id() {
+        return this._id;
+    }
+
+    constructor(protected readonly _id: number) {
+        this._filename = `${this._id.toString().padStart(3, '0')}.json`;
     }
 
     save() {
-        const patchFile = `${config.path.patches}/${this.filename}`;
-        return writeFile(patchFile, JSON.stringify(this, null, 2));
+        const patchFile = `${config.path.patches}/${this._filename}`;
+        return writeFile(
+            patchFile,
+            JSON.stringify(
+                {
+                    ...this,
+                    synth: this.synth,
+                },
+                (key, value) => (key[0] === '_' ? undefined : value),
+                2,
+            ),
+        );
     }
 
     async load() {
         // if (this.synthDef) { remove ??? }
 
-        const patchFile = `${config.path.patches}/${this.filename}`;
+        const patchFile = `${config.path.patches}/${this._filename}`;
         if (!(await fileExist(patchFile))) {
             // TODO might want to assign default patch
             // this.set(getPatch(0??));
@@ -86,10 +121,6 @@ export class Patch {
             return;
         }
         const patch = JSON.parse((await readFile(patchFile)).toString());
-        this.set(patch);
-    }
-
-    set({ id, ...patch }: Partial<Patch>) {
         Object.assign(this, patch);
     }
 }
@@ -111,17 +142,4 @@ export async function loadPatches() {
     } catch (error) {
         console.error(`Error while loading patche engines`, error);
     }
-}
-
-export async function savePatchAs(patch: Patch, as: string) {
-    const isUnique = patches.every((p) => p.name !== as);
-    if (!isUnique) {
-        throw new Error(`Patch name ${as} is not unique`);
-    }
-    let nextId = patches.findIndex((p) => p.synth === undefined);
-    if (nextId === -1) {
-        throw new Error(`No more free patch`);
-    }
-    patches[nextId].set({ ...patch, name: as });
-    await patches[nextId].save();
 }

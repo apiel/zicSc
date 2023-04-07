@@ -41,4 +41,5 @@ export default new SynthData(
         Out.ar(out, zout);
     })`,
     [main],
+    defaultValue,
 );

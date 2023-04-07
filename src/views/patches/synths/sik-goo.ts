@@ -2,7 +2,7 @@ import { Encoders } from '../../../layout/encoders.layout';
 import { patchHzEncoder } from '../encoders';
 import { SynthData } from './SynthData';
 
-const d = {
+const defaultValue = {
     bwfreq: 800,
     formfreq: 100,
 };
@@ -11,11 +11,11 @@ const encoders: Encoders = [
     undefined,
     undefined,
     undefined,
-    patchHzEncoder('bwfreq', 'bwfreq', d),
+    patchHzEncoder('bwfreq', 'bwfreq', defaultValue),
     undefined,
     undefined,
     undefined,
-    patchHzEncoder('formfreq', 'formfreq', d),
+    patchHzEncoder('formfreq', 'formfreq', defaultValue),
 ];
 
 const main = {
@@ -35,4 +35,5 @@ export default new SynthData(
       Out.ar(out, x * amp);
   })`,
     [main],
+    defaultValue,
 );
