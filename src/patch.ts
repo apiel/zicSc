@@ -19,7 +19,6 @@ export class Patch {
     name: string = 'Init patch';
 
     group?: Group;
-    synthDef?: SynthDef;
 
     setData(key: string, value: number | string) {
         this.data[key] = value;

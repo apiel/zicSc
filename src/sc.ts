@@ -32,10 +32,13 @@ const synthNodes: SynthNode[] = [];
 
 export async function noteOn(name: string, note: number, velocity: number, patch: Patch) {
     if (server) {
-        if (patch.synthDef) {
-            const freq = Note.freq(Note.fromMidi(note)) || 440;
-            const synth = await server.synth(patch.synthDef, { ...patch.params, freq, velocity }, patch.group);
-            synthNodes.push({ synth, note });
+        if (patch.synth) {
+            const _synth = synthsMap.get(patch.synth);
+            if (_synth?.synthDef) {
+                const freq = Note.freq(Note.fromMidi(note)) || 440;
+                const synth = await server.synth(_synth.synthDef, { ...patch.params, freq, velocity }, patch.group);
+                synthNodes.push({ synth, note });
+            }
         }
     }
 }
@@ -59,7 +62,7 @@ export function setParams({ group, params }: Patch, key: string) {
 
 function getSynthStep(step: Step) {
     const patch = getPatch(step.patchId);
-    return `(\\midinote: ${step.note}, \\instrument: "${patch.synthDef?.name}", \\dur: 0.25, \\group: ${patch.group?.id})`;
+    return `(\\midinote: ${step.note}, \\instrument: "${patch.synth}", \\dur: 0.25, \\group: ${patch.group?.id})`;
 }
 
 export function playScSequence(sequence: Sequence) {
@@ -117,24 +120,15 @@ export async function sc() {
             server.state.nextNodeID();
         }
 
-        if (patch.synth) {
-            const synth = synthsMap.get(patch.synth);
-            if (synth) {
-                const name = `patch_${patch.id}`;
-                const def = synth.synthDefCode.replace(/SynthDef\([0-9a-zA-Z\"\-_\\]+,/g, `SynthDef("${name}",`);
-                patch.synthDef = await server.synthDef(name, def);
-            }
-        }
-
         // FIXME remove this
         if (patch.id > 7) {
             break;
         }
     }
 
-    // for (const synth of synths) {
-    //     synth.synthDef = await server.synthDef(synth.name, synth.synthDefCode);
-    // }
+    for (const synth of synths) {
+        synth.synthDef = await server.synthDef(synth.name, synth.synthDefCode);
+    }
 
     server.receive.subscribe(([type, nodeId, ...msg]: any) => {
         if (type === '/n_end') {
