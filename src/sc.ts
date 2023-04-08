@@ -53,12 +53,12 @@ export function noteOff(note: number) {
     }
 }
 
-export function setParams({ group, params }: Patch, key: string) {
+export function setParams({ group, params, id }: Patch, key: string) {
     if (server) {
         if (group) {
             group.set({ [key]: params[key] });
         }
-        // client.interpret(``);
+        client.interpret(`topEnvironment.at(\\patchesParams).patch_${id}.${key} = ${params[key]}`);
     }
 }
 
