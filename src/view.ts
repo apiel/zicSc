@@ -5,8 +5,8 @@ import { View } from './def';
 import { MidiMsg, MIDI_TYPE } from './midi';
 import { akaiApcKey25 } from './midi/akaiApcKey25';
 
-// let view: View = View.Sequencer;
-let view: View = View.Patch; // For the moment let's focus on patches
+let view: View = View.Sequencer;
+// let view: View = View.Patch; // For the moment let's focus on patches
 
 export const getView = () => view;
 

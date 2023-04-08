@@ -3,14 +3,14 @@ import { patchMsEncoder, patchPercentageEncoder } from '../encoders';
 import { SynthData } from './SynthData';
 
 const defaultValue = {
-    dur: 0.15,
+    duration: 0.15,
     amp: 1,
 };
 
 const encoders: Encoders = [
     undefined,
     undefined,
-    patchMsEncoder('dur', 'Duration', defaultValue, 0.05, 2),
+    patchMsEncoder('duration', 'Duration', defaultValue, 0.05, 2),
     undefined,
     patchPercentageEncoder('amp', 'Amplitude', defaultValue),
     undefined,
@@ -24,7 +24,7 @@ const main = {
 
 export default new SynthData(
     'psykick',
-    `SynthDef("psykick", { arg out=0, dur = 0.15, atk = 0.005, amp = 1;
+    `SynthDef("psykick", { arg out=0, duration = 0.15, atk = 0.005, amp = 1;
         var zout = SinOsc.ar(
             EnvGen.ar(
               Env(
@@ -34,7 +34,7 @@ export default new SynthData(
               )
             ),
             mul:amp * EnvGen.ar(
-                Env.perc( atk, dur - atk, curve: NamedControl.kr(\\amp_c, [-1, 6])),
+                Env.perc( atk, duration - atk, curve: NamedControl.kr(\\amp_c, [-1, 6])),
                 doneAction: 2
             );	
         );

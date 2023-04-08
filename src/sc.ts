@@ -54,18 +54,22 @@ export function noteOff(note: number) {
 }
 
 export function setParams({ group, params }: Patch, key: string) {
-    if (server && group) {
-        group.set({ [key]: params[key] });
+    if (server) {
+        if (group) {
+            group.set({ [key]: params[key] });
+        }
+        // client.interpret(``);
     }
 }
 
 function getSynthStep(step: Step) {
     const patch = getPatch(step.patchId);
     let params = '';
-    // for (const key in patch.params) {
-    //     params += `, \\${key}: { p.patch_${patch.id}.${key} }`;
-    // }
-    return `(\\midinote: ${step.note}, \\instrument: "${patch.synth}", \\dur: 0.25, \\group: ${patch.group?.id})${params}`;
+    for (const key in patch.params) {
+        params += `, \\${key}: { topEnvironment.at(\\patchesParams).patch_${patch.id}.${key} }`;
+        // params += `, \\${key}: { ${patch.params[key]} }`;
+    }
+    return `(\\midinote: ${step.note}, \\instrument: "${patch.synth}", \\dur: 0.25, \\group: ${patch.group?.id}${params})`;
 }
 
 export function playScSequence(sequence: Sequence) {
@@ -81,12 +85,19 @@ export function playScSequence(sequence: Sequence) {
         voice1 += `~step${i},`;
     }
     voice1 += '], inf)';
-    const code = `(
+    const code = `
+        (
+        topEnvironment;
+        ~sequence_${sequence.id}_stop = 0;
         ${steps}
 
         ~lastStep = PatternProxy(Pseq([
             (\\degree: Rest(), dur: ${(sequence.stepCount - 1) * 0.25}), 
-            (\\degree: { "last".postln; if (s > 0, { "should stop".postln; p.stop }); Rest() }, dur: 0.25)
+            (\\degree: { "last".postln; if (topEnvironment.at(\\sequence_${
+                sequence.id
+            }_stop) > 0, { "should stop".postln; topEnvironment.at(\\sequence_${
+        sequence.id
+    }).stop }); Rest() }, dur: 0.25)
         ], inf));
   
         ~steps = PatternProxy(
@@ -95,8 +106,6 @@ export function playScSequence(sequence: Sequence) {
                 ~lastStep,
             ])
         );
-    
-        s = 0;
         ~sequence_${sequence.id} = ~steps.play;
     )`;
     console.log(code);
@@ -104,7 +113,7 @@ export function playScSequence(sequence: Sequence) {
 }
 
 export function stopScSequence(sequence: Sequence) {
-    return client.interpret('s = 1');
+    return client.interpret(`~sequence_${sequence.id}_stop = 1`);
 }
 
 function getPatchValues(patch: Patch) {
@@ -124,7 +133,7 @@ export async function sc() {
     await server.connect();
     client = await lang.boot();
 
-    let patchesValues = 'p = (';
+    let patchesParams = 'topEnvironment; ~patchesParams = (';
     for (let patch of patches) {
         const newGroup = await client.interpret(`Group.new;`);
         if (newGroup.string) {
@@ -132,16 +141,16 @@ export async function sc() {
             // Increase node id to avoid conflict
             server.state.nextNodeID();
         }
-        patchesValues += getPatchValues(patch);
+        patchesParams += getPatchValues(patch);
 
         // FIXME remove this
         if (patch.id > 7) {
             break;
         }
     }
-    patchesValues += ');';
-    console.log({patchesValues});
-    await client.interpret(patchesValues);
+    patchesParams += ');';
+    // console.log(patchesParams);
+    await client.interpret(patchesParams);
 
     for (const synth of synths) {
         synth.synthDef = await server.synthDef(synth.name, synth.synthDefCode);
