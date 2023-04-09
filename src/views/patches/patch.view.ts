@@ -18,7 +18,7 @@ import {
 import { drawPatchTitle } from './draw';
 import { patchEncoder, synthEncoder } from './encoders';
 import { patchMenu, patchMenuHandler } from './patch.menu';
-import { synthsMap } from './synths';
+import { synthsMap } from '../../synths';
 
 export function getPatchView(patch = getPatch(currentPatchId)) {
     if (!patch.synth) {

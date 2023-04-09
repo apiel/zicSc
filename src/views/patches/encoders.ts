@@ -4,7 +4,7 @@ import { shiftPressed } from '../../midi';
 import { EncoderStringFn } from '../../nodes/encoder.node';
 import { currentPatchId, getPatch, setCurrentPatchId } from '../../patch';
 import { minmax } from '../../util';
-import { synthsNames } from './synths';
+import { synthsNames } from '../../synths';
 
 export const patchEncoder: EncoderData = {
     node: {

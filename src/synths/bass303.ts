@@ -1,6 +1,6 @@
-import { Encoders } from '../../../layout/encoders.layout';
-import { currentPatchId, getPatch } from '../../../patch';
-import { patchMsEncoder, patchNumberEncoder, patchPercentageEncoder } from '../encoders';
+import { Encoders } from '../layout/encoders.layout';
+import { currentPatchId, getPatch } from '../patch';
+import { patchMsEncoder, patchNumberEncoder, patchPercentageEncoder } from '../views/patches/encoders';
 import { SynthData } from './SynthData';
 
 const defaultValue = {

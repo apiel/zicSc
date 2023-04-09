@@ -1,5 +1,5 @@
-import { Encoders } from '../../../layout/encoders.layout';
-import { patchNumberEncoder } from '../encoders';
+import { Encoders } from '../layout/encoders.layout';
+import { patchNumberEncoder } from '../views/patches/encoders';
 import { SynthData } from './SynthData';
 
 const defaultValue = {

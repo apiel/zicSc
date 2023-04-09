@@ -1,8 +1,7 @@
-import { SynthDef } from '@supercollider/server-plus';
-import { Encoders } from '../../../layout/encoders.layout';
-import { currentPatchId } from '../../../patch';
-import { minmax } from '../../../util';
-import { patchEncoder, synthEncoder } from '../encoders';
+import { Encoders } from '../layout/encoders.layout';
+import { currentPatchId } from '../patch';
+import { minmax } from '../util';
+import { patchEncoder, synthEncoder } from '../views/patches/encoders';
 
 // TODO when pressing patch view button several time switch between views
 // TODO long press patch view button to allow to select a different patch
@@ -11,7 +10,9 @@ import { patchEncoder, synthEncoder } from '../encoders';
 //   be able to browse only through patch of the selected sequence...
 
 export class SynthData {
-    synthDef?: SynthDef;
+    // FIXME
+    // synthDef?: SynthDef;
+    synthDef?: any;
 
     currentView = 0;
     lastPatchId = currentPatchId;

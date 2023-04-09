@@ -1,11 +1,10 @@
 import { readFile, writeFile } from 'fs/promises';
 
-import { Group } from '@supercollider/server-plus';
 import { PATCH_COUNT, config } from './config';
 import { shiftPressed } from './midi';
 import { noteOff, noteOn, setParams } from './sc';
 import { fileExist, minmax } from './util';
-import { synthsMap } from './views/patches/synths';
+import { synthsMap } from './synths';
 
 export let currentPatchId = 0;
 export function setCurrentPatchId(id: number) {
@@ -16,7 +15,8 @@ export class Patch {
     protected _filename: string;
     // Keep without _underscore to be saved in json
     protected data: { [key: string]: number | string } = {};
-    protected _group?: Group;
+    // protected _group?: Group;
+    protected _groupId: number = -1;
     protected _synth?: string;
 
     name: string = 'Init patch';
@@ -33,12 +33,12 @@ export class Patch {
         }
     }
 
-    get group() {
-        return this._group;
+    get groupId() {
+        return this._groupId;
     }
 
-    set group(group: Group | undefined) {
-        this._group = group;
+    set groupId(groupId: number) {
+        this._groupId = groupId;
     }
 
     get params() {

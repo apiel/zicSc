@@ -5,7 +5,7 @@ import { padBanks } from './sequencerController';
 import { getPatchView } from '../patches/patch.view';
 import { patches, setCurrentPatchId } from '../../patch';
 import { padSeq } from './sequencerController';
-import { synths } from '../patches/synths';
+import { synths } from '../../synths';
 import { minmax } from '../../util';
 
 export function patchViewPageController(count = 0, active = 0) {

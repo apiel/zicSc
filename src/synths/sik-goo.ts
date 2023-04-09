@@ -1,5 +1,5 @@
-import { Encoders } from '../../../layout/encoders.layout';
-import { patchHzEncoder } from '../encoders';
+import { Encoders } from '../layout/encoders.layout';
+import { patchHzEncoder } from '../views/patches/encoders';
 import { SynthData } from './SynthData';
 
 const defaultValue = {

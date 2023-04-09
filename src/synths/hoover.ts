@@ -1,4 +1,4 @@
-import { Encoders } from '../../../layout/encoders.layout';
+import { Encoders } from '../layout/encoders.layout';
 import { SynthData } from './SynthData';
 
 const defaultValue = {};
