@@ -24,10 +24,13 @@ function getClient() {
 
         client.on('message', (msg: Buffer) => {
             const decoded = fromBuffer(msg);
-            log('Client msg:', msg.toString(), decoded);
             event.emit(decoded.address, decoded.args);
             if (decoded.address === '/done') {
                 event.emit(`/done${decoded.args[0].value}`, decoded.args);
+            }
+            // log('Client msg:', msg.toString(), decoded);
+            if (decoded.address === '/fail') {
+                console.error('SC Error:', decoded)
             }
         });
     }
@@ -36,7 +39,7 @@ function getClient() {
 
 export function send(address: string, ...args: ArgumentType[]) {
     const client = getClient();
-    log('Send:', address, args);
+    // log('Send:', address, args);
     const buffer = toBuffer({
         address,
         args,
