@@ -38,3 +38,9 @@ export async function defLoadDir() {
     await send('/d_loadDir', join(__dirname, '..', 'synths'));
     return done;
 }
+
+// https://doc.sccode.org/Reference/Server-Command-Reference.html#/n_set
+// nodeID is the synth id or the group id
+export function nodeSet(nodeID: number, key: string, value: ArgumentType) {
+    return send('/n_set', nodeID, key, value);
+}

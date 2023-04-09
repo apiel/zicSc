@@ -2,8 +2,9 @@ import { Note } from 'tonal';
 import { Patch, getPatch, patches } from '../patch';
 import { Sequence, Step } from '../sequence';
 import { synths, synthsMap } from '../synths';
-import { init, send } from './client';
-import { defLoadDir, groupNew, synthNew } from './cmd';
+import { event, init, send } from './client';
+import { defLoadDir, groupNew, nodeSet, synthNew } from './cmd';
+import { Argument } from 'osc-min';
 
 interface SynthNode {
     id: number;
@@ -13,16 +14,6 @@ interface SynthNode {
 const synthNodes: SynthNode[] = [];
 
 export async function noteOn(note: number, velocity: number, patch: Patch) {
-    // if (server) {
-    //     if (patch.synth) {
-    //         const _synth = synthsMap.get(patch.synth);
-    //         if (_synth?.synthDef) {
-    //             const freq = Note.freq(Note.fromMidi(note)) || 440;
-    //             const synth = await server.synth(_synth.synthDef, { ...patch.params, freq, velocity }, patch.group);
-    //             synthNodes.push({ synth, note });
-    //         }
-    //     }
-    // }
     if (patch.synth) {
         const id = await synthNew(patch.synth, patch.groupId, {
             ...patch.params,
@@ -34,14 +25,12 @@ export async function noteOn(note: number, velocity: number, patch: Patch) {
 }
 
 export function noteOff(note: number) {
-    // if (server) {
-    //     // Loop because sometime some notes stay on...
-    //     for (const node of synthNodes) {
-    //         if (node.note === note) {
-    //             node.synth.set({ gate: 0 });
-    //         }
-    //     }
-    // }
+    // Loop because sometime some notes stay on...
+    for (const node of synthNodes) {
+        if (node.note === note) {
+            nodeSet(node.id, 'gate', 0);
+        }
+    }
 }
 
 export function setParams({ groupId, params, id }: Patch, key: string) {
@@ -124,17 +113,11 @@ export async function sc() {
         patch.groupId = await groupNew();
     }
 
-
-    // for (const synth of synths) {
-    //     synth.synthDef = await server.synthDef(synth.name, synth.synthDefCode);
-    // }
-
-    // server.receive.subscribe(([type, nodeId, ...msg]: any) => {
-    //     if (type === '/n_end') {
-    //         const index = synthNodes.findIndex(({ synth: { id } }) => id === nodeId);
-    //         if (index !== -1) {
-    //             synthNodes.splice(index, 1);
-    //         }
-    //     }
-    // });
+    // On note off, remove synth node from array
+    event.on('/n_end', ([{ value: nodeId }]: Argument[]) => {
+        const index = synthNodes.findIndex(({ id }) => id === nodeId);
+        if (index !== -1) {
+            synthNodes.splice(index, 1);
+        }
+    });
 }
