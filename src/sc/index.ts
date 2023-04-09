@@ -28,18 +28,18 @@ export function noteOff(note: number) {
     // Loop because sometime some notes stay on...
     for (const node of synthNodes) {
         if (node.note === note) {
+            // should we await?
             nodeSet(node.id, 'gate', 0);
         }
     }
 }
 
-export function setParams({ groupId, params, id }: Patch, key: string) {
-    // if (server) {
-    //     if (group) {
-    //         group.set({ [key]: params[key] });
-    //     }
-    //     client.interpret(`topEnvironment.at(\\patchesParams).patch_${id}.${key} = ${params[key]}`);
-    // }
+export function setParams({ groupId, params }: Patch, key: string) {
+    // FIXME ??
+    // client.interpret(`topEnvironment.at(\\patchesParams).patch_${id}.${key} = ${params[key]}`);
+    if (groupId) {
+        return nodeSet(groupId, key, params[key]);
+    }
 }
 
 function getSynthStep(step: Step) {
