@@ -66,3 +66,10 @@ eventSequencer.on('beatQuarter', async () => {
         render();
     }
 });
+
+eventSequencer.on('sequenceEnd', async () => {
+    if (getView() === View.Sequencer) {
+        await sequencerView({ controllerRendering: true });
+        render();
+    }
+});
