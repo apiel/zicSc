@@ -9,5 +9,5 @@ SynthDef("bass303", {  arg  out=0, freq = 440, wave=0, cutoff=100, res=0.2,
 
 	waves = [ Saw .ar(freq, volEnv),  Pulse .ar(freq, 0.5, volEnv)];
 
-	Out .ar(out,  RLPF .ar(  Select .ar(wave, waves), cutoff + (filEnv * env * 10000), reso).dup * amp);
+	Out .ar(out,  RLPF .ar(  Select .ar(wave, waves), cutoff + (filEnv * env * 10000), reso).dup * amp * 0.15);
 })
