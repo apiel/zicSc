@@ -3,7 +3,7 @@ import { config } from './config';
 import { setCurrentPatchId } from './patch';
 import { fileExist } from './util';
 import { MAX_STEPS_IN_PATTERN, SEQUENCE_COUNT } from './config';
-import { playScSequence, stopScSequence } from './sc';
+import { addToSequencer, stopNext } from './sc/sequencer';
 
 export interface Step {
     note: number;
@@ -108,10 +108,10 @@ export function playSequence(sequence: Sequence, playing = true, next?: boolean)
             // if (playingSeq) {
             //     playingSeq.playing = false;
             // }
-            return playScSequence(sequence);
+            return addToSequencer(sequence);
         } else {
             console.log('stopSequence');
-            return stopScSequence(sequence);
+            return stopNext(sequence);
         }
     }
 }

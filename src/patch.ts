@@ -2,9 +2,9 @@ import { readFile, writeFile } from 'fs/promises';
 
 import { PATCH_COUNT, config } from './config';
 import { shiftPressed } from './midi';
-import { noteOff, noteOn, setParams } from './sc';
 import { fileExist, minmax } from './util';
 import { synthsMap } from './synths';
+import { noteOff, noteOn, setParams } from './sc/synth';
 
 export let currentPatchId = 0;
 export function setCurrentPatchId(id: number) {
