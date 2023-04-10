@@ -2,8 +2,8 @@ import { ArgumentType } from 'osc-min';
 import { event, send } from './client';
 import { join } from 'path';
 
+// Would there be a better way to generate unique ids?
 let nodeId = 1100;
-
 function getNodeId() {
     return nodeId++;
 }
@@ -26,6 +26,9 @@ function flatParams(params: Params) {
 // https://doc.sccode.org/Reference/Server-Command-Reference.html#/s_new
 export async function synthNew(synthName: string, groupId: number, params: Params) {
     const id = getNodeId();
+    return synthNewWithId(synthName, id, groupId, params);
+}
+export async function synthNewWithId(synthName: string, id: number, groupId: number, params: Params) {
     await send('/s_new', synthName, id, 0, groupId, ...flatParams(params));
     return id;
 }

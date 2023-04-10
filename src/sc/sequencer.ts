@@ -1,6 +1,7 @@
+import { Note } from 'tonal';
 import { getPatch } from '../patch';
 import { Sequence } from '../sequence';
-import { noteOff, noteOn } from './synth';
+import { synthNew, synthNewWithId } from './cmd';
 
 let bpm = 120;
 // There is 4 quarter per beat, and 60 beat per minutes (bpm), but tempo is in ms
@@ -34,11 +35,17 @@ async function beatQuarter() {
             const steps = item.sequence.steps[item.currentStep];
             for (const step of steps) {
                 if (step?.note) {
-                    await noteOn(step.note, step.velocity, getPatch(step.patchId));
-                    setTimeout(() => {
-                        // FIXME: cannot stop all notes
-                        noteOff(step.note);
-                    }, tempo);
+                    const patch = getPatch(step.patchId);
+                    if (patch.synth) {
+                        // We dont want to await here, because we want to play all notes at the same time
+                        // And we dont need an id, because it will note off automatically
+                        synthNewWithId(patch.synth, -1, patch.groupId, {
+                            ...patch.params,
+                            freq: Note.freq(Note.fromMidi(step.note)) || 440,
+                            velocity: step.velocity,
+                            dur: 0.25,
+                        });
+                    }
                 }
             }
             item.currentStep++;
