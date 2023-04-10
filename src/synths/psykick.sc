@@ -9,7 +9,7 @@ SynthDef("psykick", { arg out=0, duration = 0.15, atk = 0.005, amp = 1;
         ),
         mul:amp * EnvGen.ar(
             Env.perc( atk, duration - atk, curve: NamedControl.kr(\amp_c, [-1, 6])),
-            doneAction: 2
+            doneAction: Done.freeSelf
         );	
     );
     Out.ar(out, zout);

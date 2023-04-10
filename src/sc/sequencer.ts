@@ -8,8 +8,8 @@ export const eventSequencer = new EventEmitter();
 
 let bpm = 120;
 // There is 4 quarter per beat, and 60 beat per minutes (bpm), but tempo is in ms
-const getTempo = () => (60 / (bpm * 4)) * 1000;
-let tempo = getTempo();
+const getTempo = () => (60 / (bpm * 4));
+let quaterBeatInSec = getTempo();
 
 export enum Status {
     PLAYING,
@@ -26,7 +26,7 @@ interface SequencerItem {
 const sequencerItems: SequencerItem[] = [];
 
 export function loop() {
-    setTimeout(loop, tempo);
+    setTimeout(loop, quaterBeatInSec * 1000);
     return beatQuarter();
 }
 
@@ -57,7 +57,7 @@ async function beatQuarter() {
                             ...patch.params,
                             freq: Note.freq(Note.fromMidi(step.note)) || 440,
                             velocity: step.velocity,
-                            dur: 0.25, // FIXME
+                            gateDuration: quaterBeatInSec,
                         });
                     }
                 }
@@ -96,7 +96,7 @@ async function beatQuarter() {
 
 export function setBpm(newBpm: number) {
     bpm = newBpm;
-    tempo = getTempo();
+    quaterBeatInSec = getTempo();
 }
 
 export function addToSequencer(
