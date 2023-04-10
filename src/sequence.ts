@@ -66,7 +66,7 @@ export interface Sequence {
     detune: number;
     repeat: number;
     nextSequenceId?: number;
-    activeStep: number;
+    activeStep?: number;
     stepCount: number;
     steps: Steps;
 }
@@ -122,7 +122,6 @@ export async function loadSequence(id: number) {
             trackId: undefined,
             playing: false,
             detune: 0,
-            activeStep: 0,
             repeat: 0,
             stepCount: 16,
             steps: Array.from({ length: MAX_STEPS_IN_PATTERN }, () => []),
@@ -163,7 +162,6 @@ export function newSequence() {
         playing: false,
         detune: 0,
         repeat: 0,
-        activeStep: 0,
         nextSequenceId: undefined,
         patchId: 0,
         stepCount: 16,

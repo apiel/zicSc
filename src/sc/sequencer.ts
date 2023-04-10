@@ -20,6 +20,7 @@ interface SequencerItem {
     sequence: Sequence;
     repeat: number;
     status: Status;
+    currentStep: number;
 }
 
 const sequencerItems: SequencerItem[] = [];
@@ -34,7 +35,7 @@ async function beatQuarter() {
     for (const index in sequencerItems) {
         const item = sequencerItems[index];
         if (item.status === Status.PLAYING) {
-            const steps = item.sequence.steps[item.sequence.activeStep];
+            const steps = item.sequence.steps[item.currentStep];
             for (const step of steps) {
                 if (step?.note) {
                     const patch = getPatch(step.patchId);
@@ -50,12 +51,15 @@ async function beatQuarter() {
                     }
                 }
             }
-            item.sequence.activeStep++;
-            if (item.sequence.activeStep >= item.sequence.stepCount) {
-                item.sequence.activeStep = 0;
+            item.currentStep++;
+            item.sequence.activeStep = item.currentStep;
+            if (item.currentStep >= item.sequence.stepCount) {
+                item.currentStep = 0;
                 if (item.sequence.playing && (!item.sequence.repeat || item.repeat < item.sequence.repeat)) {
+                    item.sequence.activeStep = 0;
                     item.repeat++;
                 } else {
+                    item.sequence.activeStep = undefined;
                     item.sequence.playing = false;
                     sequencerItems.splice(Number(index), 1);
                     eventSequencer.emit('sequenceEnd', item);
@@ -83,10 +87,10 @@ export function addToSequencer(
     sequence: Sequence,
     status = sequencerItems.length ? Status.STARTING_NEXT : Status.PLAYING,
 ) {
-    sequence.activeStep = 0; // ??
     sequencerItems.push({
         sequence,
         status,
         repeat: 0,
+        currentStep: 0,
     });
 }

@@ -43,10 +43,6 @@ export function noteOff(note: number) {
 }
 
 export function setParams({ groupId, params }: Patch, key: string) {
-    // FIXME ??
-    // client.interpret(`topEnvironment.at(\\patchesParams).patch_${id}.${key} = ${params[key]}`);
-
-    // TODO here we could look if the synth is playing...
     if (groupId) {
         return nodeSet(groupId, key, params[key]);
     }
