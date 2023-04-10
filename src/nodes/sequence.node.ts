@@ -12,7 +12,7 @@ interface Props {
     repeat: number;
     stepCount: number;
     steps: Steps;
-    activeStep?: number;
+    activeStep: number;
     selected?: boolean;
 }
 
@@ -55,7 +55,7 @@ export function sequenceNode(
         position: patternPreviewPosition,
         size: { w: patternSize.w - 4, h: patternSize.h - 4 },
     };
-    patternPreviewNode(patternPreviewRect, stepCount, steps, activeStep);
+    patternPreviewNode(patternPreviewRect, stepCount, steps, playing ? activeStep : undefined);
 
     if (selected) {
         setColor(color.secondarySelected);

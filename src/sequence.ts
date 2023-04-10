@@ -91,13 +91,6 @@ export function getSequencesForPatchId(patchId: number) {
     return sequences.filter((s) => s.steps.flat().find((step) => step?.patchId === patchId));
 }
 
-// export function cleanActiveStep(trackId: number) {
-//     const seqs = sequences.filter((s) => s.trackId === trackId && s.activeStep !== undefined);
-//     for (const seq of seqs) {
-//         seq.activeStep = undefined;
-//     }
-// }
-
 export function toggleSequence(sequence: Sequence) {
     sequence.playing = !sequence.playing;
     if (sequence.playing) {
