@@ -12,7 +12,7 @@ interface Props {
     repeat: number;
     stepCount: number;
     steps: Steps;
-    activeStep: number;
+    activeStep?: number;
     selected?: boolean;
 }
 
