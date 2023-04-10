@@ -1,7 +1,7 @@
 import { Note } from 'tonal';
 import { Patch } from '../patch';
 import { nodeSet, synthNew } from './cmd';
-import { event } from './client';
+import { eventClient } from './client';
 import { Argument } from 'osc-min';
 
 interface SynthNode {
@@ -13,7 +13,7 @@ const synthNodes: SynthNode[] = [];
 
 export function watchSynthNodes() {
     // On note off, remove synth node from array
-    event.on('/n_end', ([{ value: nodeId }]: Argument[]) => {
+    eventClient.on('/n_end', ([{ value: nodeId }]: Argument[]) => {
         const index = synthNodes.findIndex(({ id }) => id === nodeId);
         if (index !== -1) {
             synthNodes.splice(index, 1);

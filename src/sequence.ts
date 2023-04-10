@@ -1,9 +1,8 @@
 import { readFile, writeFile } from 'fs/promises';
-import { config } from './config';
+import { MAX_STEPS_IN_PATTERN, SEQUENCE_COUNT, config } from './config';
 import { setCurrentPatchId } from './patch';
+import { Status, addToSequencer } from './sc/sequencer';
 import { fileExist } from './util';
-import { MAX_STEPS_IN_PATTERN, SEQUENCE_COUNT } from './config';
-import { addToSequencer, stopNext } from './sc/sequencer';
 
 export interface Step {
     note: number;
@@ -67,7 +66,7 @@ export interface Sequence {
     detune: number;
     repeat: number;
     nextSequenceId?: number;
-    activeStep?: number;
+    activeStep: number;
     stepCount: number;
     steps: Steps;
 }
@@ -92,32 +91,18 @@ export function getSequencesForPatchId(patchId: number) {
     return sequences.filter((s) => s.steps.flat().find((step) => step?.patchId === patchId));
 }
 
-export function cleanActiveStep(trackId: number) {
-    const seqs = sequences.filter((s) => s.trackId === trackId && s.activeStep !== undefined);
-    for (const seq of seqs) {
-        seq.activeStep = undefined;
-    }
-}
-
-export function playSequence(sequence: Sequence, playing = true, next?: boolean) {
-    if (sequence.trackId !== undefined) {
-        sequence.playing = playing;
-        if (playing) {
-            console.log('playSequence');
-            // const playingSeq = getPlayingSequence(sequence.trackId);
-            // if (playingSeq) {
-            //     playingSeq.playing = false;
-            // }
-            return addToSequencer(sequence);
-        } else {
-            console.log('stopSequence');
-            return stopNext(sequence);
-        }
-    }
-}
+// export function cleanActiveStep(trackId: number) {
+//     const seqs = sequences.filter((s) => s.trackId === trackId && s.activeStep !== undefined);
+//     for (const seq of seqs) {
+//         seq.activeStep = undefined;
+//     }
+// }
 
 export function toggleSequence(sequence: Sequence) {
-    return playSequence(sequence, !sequence.playing, true);
+    sequence.playing = !sequence.playing;
+    if (sequence.playing) {
+        return addToSequencer(sequence);
+    }
 }
 
 function getFilepath(id: number) {
@@ -135,7 +120,7 @@ export async function loadSequence(id: number) {
             ...Array.from({ length: MAX_STEPS_IN_PATTERN - sequence.steps.length }, () => []),
         ];
         if (sequence.playing) {
-            playSequence(sequence);
+            addToSequencer(sequence, Status.PLAYING);
         }
         sequences[sequence.id] = sequence;
     } else {
@@ -144,6 +129,7 @@ export async function loadSequence(id: number) {
             trackId: undefined,
             playing: false,
             detune: 0,
+            activeStep: 0,
             repeat: 0,
             stepCount: 16,
             steps: Array.from({ length: MAX_STEPS_IN_PATTERN }, () => []),
@@ -184,6 +170,7 @@ export function newSequence() {
         playing: false,
         detune: 0,
         repeat: 0,
+        activeStep: 0,
         nextSequenceId: undefined,
         patchId: 0,
         stepCount: 16,

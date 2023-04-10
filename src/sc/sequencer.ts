@@ -1,38 +1,40 @@
 import { Note } from 'tonal';
 import { getPatch } from '../patch';
 import { Sequence } from '../sequence';
-import { synthNew, synthNewWithId } from './cmd';
+import { synthNewWithId } from './cmd';
+import EventEmitter from 'events';
+
+export const eventSequencer = new EventEmitter();
 
 let bpm = 120;
 // There is 4 quarter per beat, and 60 beat per minutes (bpm), but tempo is in ms
 const getTempo = () => (60 / (bpm * 4)) * 1000;
 let tempo = getTempo();
 
-enum Status {
+export enum Status {
     PLAYING,
     STARTING_NEXT,
 }
 
 interface SequencerItem {
     sequence: Sequence;
-    currentStep: number;
+    repeat: number;
     status: Status;
 }
 
 const sequencerItems: SequencerItem[] = [];
 
-function loop() {
+export function loop() {
     setTimeout(loop, tempo);
-    beatQuarter(); // Don't await!!
+    return beatQuarter();
 }
-loop();
 
 async function beatQuarter() {
     let startNext = false;
     for (const index in sequencerItems) {
         const item = sequencerItems[index];
         if (item.status === Status.PLAYING) {
-            const steps = item.sequence.steps[item.currentStep];
+            const steps = item.sequence.steps[item.sequence.activeStep];
             for (const step of steps) {
                 if (step?.note) {
                     const patch = getPatch(step.patchId);
@@ -43,17 +45,20 @@ async function beatQuarter() {
                             ...patch.params,
                             freq: Note.freq(Note.fromMidi(step.note)) || 440,
                             velocity: step.velocity,
-                            dur: 0.25,
+                            dur: 0.25, // FIXME
                         });
                     }
                 }
             }
-            item.currentStep++;
-            if (item.currentStep >= item.sequence.stepCount) {
-                if (item.sequence.playing) {
-                    item.currentStep = 0;
+            item.sequence.activeStep++;
+            if (item.sequence.activeStep >= item.sequence.stepCount) {
+                item.sequence.activeStep = 0;
+                if (item.sequence.playing && (!item.sequence.repeat || item.repeat < item.sequence.repeat)) {
+                    item.repeat++;
                 } else {
+                    item.sequence.playing = false;
                     sequencerItems.splice(Number(index), 1);
+                    eventSequencer.emit('sequenceEnd', item);
                 }
                 if (index === '0') {
                     startNext = true;
@@ -66,6 +71,7 @@ async function beatQuarter() {
             item.status = Status.PLAYING;
         }
     }
+    eventSequencer.emit('beatQuarter', sequencerItems);
 }
 
 export function setBpm(newBpm: number) {
@@ -73,12 +79,14 @@ export function setBpm(newBpm: number) {
     tempo = getTempo();
 }
 
-export function addToSequencer(sequence: Sequence) {
+export function addToSequencer(
+    sequence: Sequence,
+    status = sequencerItems.length ? Status.STARTING_NEXT : Status.PLAYING,
+) {
+    sequence.activeStep = 0; // ??
     sequencerItems.push({
         sequence,
-        currentStep: 0,
-        status: sequencerItems.length ? Status.STARTING_NEXT : Status.PLAYING,
+        status,
+        repeat: 0,
     });
 }
-
-export function stopNext(sequence: Sequence) {}

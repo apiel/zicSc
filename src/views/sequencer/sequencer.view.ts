@@ -1,4 +1,4 @@
-import { clear, drawFilledRect, Rect, setColor } from 'zic_node_ui';
+import { clear, drawFilledRect, Rect, render, setColor } from 'zic_node_ui';
 import { config } from '../../config';
 import { renderMessage } from '../../draw/drawMessage';
 import { MidiMsg } from '../../midi';
@@ -6,8 +6,10 @@ import { sequenceNode } from '../../nodes/sequence.node';
 import { sequences } from '../../sequence';
 import { color, unit } from '../../style';
 import { getTrack } from '../../track';
-import { RenderOptions } from '../../view';
+import { getView, RenderOptions } from '../../view';
 import { bankController, sequencePlayStopMidiHandler, sequencerController } from '../controller/sequencerController';
+import { eventSequencer } from '../../sc/sequencer';
+import { View } from '../../def';
 
 const { margin } = unit;
 const height = config.screen.size.h / config.sequence.row;
@@ -57,3 +59,10 @@ export async function sequencerView({ controllerRendering }: RenderOptions = {})
 export function sequencerMidiHandler(midiMsg: MidiMsg) {
     return sequencePlayStopMidiHandler(midiMsg);
 }
+
+eventSequencer.on('beatQuarter', async () => {
+    if (getView() === View.Sequencer) {
+        await sequencerView({ beatRendering: true });
+        render();
+    }
+});

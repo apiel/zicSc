@@ -3,5 +3,3 @@ export enum View {
     SequencerEdit = 'SequencerEdit',
     Patch = 'Patch',
 }
-
-export const beatViews = [View.Sequencer, View.SequencerEdit] as const;

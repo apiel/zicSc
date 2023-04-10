@@ -8,7 +8,7 @@ const host = '127.0.0.1';
 const log = console.log;
 
 let client: Socket;
-export const event = new EventEmitter();
+export const eventClient = new EventEmitter();
 
 function getClient() {
     if (!client) {
@@ -24,9 +24,9 @@ function getClient() {
 
         client.on('message', (msg: Buffer) => {
             const decoded = fromBuffer(msg);
-            event.emit(decoded.address, decoded.args);
+            eventClient.emit(decoded.address, decoded.args);
             if (decoded.address === '/done') {
-                event.emit(`/done${decoded.args[0].value}`, decoded.args);
+                eventClient.emit(`/done${decoded.args[0].value}`, decoded.args);
             }
             // log('Client msg:', msg.toString(), decoded);
             if (decoded.address === '/fail') {

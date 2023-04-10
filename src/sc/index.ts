@@ -1,6 +1,7 @@
 import { patches } from '../patch';
 import { init } from './client';
 import { defLoadDir, groupNew } from './cmd';
+import { loop } from './sequencer';
 import { watchSynthNodes } from './synth';
 
 export async function sc() {
@@ -14,4 +15,7 @@ export async function sc() {
     }
 
     watchSynthNodes();
+
+    // Only start loop once sequences are ready
+    await loop();
 }

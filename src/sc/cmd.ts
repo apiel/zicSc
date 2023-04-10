@@ -1,5 +1,5 @@
 import { ArgumentType } from 'osc-min';
-import { event, send } from './client';
+import { eventClient, send } from './client';
 import { join } from 'path';
 
 // Would there be a better way to generate unique ids?
@@ -36,7 +36,7 @@ export async function synthNewWithId(synthName: string, id: number, groupId: num
 // https://doc.sccode.org/Reference/Server-Command-Reference.html#/d_loadDir
 export async function defLoadDir() {
     const done = new Promise((resolve) => {
-        event.once('/done/d_loadDir', resolve);
+        eventClient.once('/done/d_loadDir', resolve);
     });
     await send('/d_loadDir', join(__dirname, '..', 'synths'));
     return done;
