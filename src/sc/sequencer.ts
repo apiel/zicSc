@@ -7,10 +7,15 @@ let bpm = 120;
 const getTempo = () => (60 / (bpm * 4)) * 1000;
 let tempo = getTempo();
 
+enum Status {
+    PLAYING,
+    STARTING_NEXT,
+}
+
 interface SequencerItem {
     sequence: Sequence;
     currentStep: number;
-    // next?: Sequence;
+    status: Status;
 }
 
 const sequencerItems: SequencerItem[] = [];
@@ -22,25 +27,36 @@ function loop() {
 loop();
 
 async function beatQuarter() {
+    let startNext = false;
     for (const index in sequencerItems) {
         const item = sequencerItems[index];
-        const steps = item.sequence.steps[item.currentStep];
-        for (const step of steps) {
-            if (step?.note) {
-                await noteOn(step.note, step.velocity, getPatch(step.patchId));
-                setTimeout(() => {
-                    // FIXME: cannot stop all notes
-                    noteOff(step.note);
-                }, tempo);
+        if (item.status === Status.PLAYING) {
+            const steps = item.sequence.steps[item.currentStep];
+            for (const step of steps) {
+                if (step?.note) {
+                    await noteOn(step.note, step.velocity, getPatch(step.patchId));
+                    setTimeout(() => {
+                        // FIXME: cannot stop all notes
+                        noteOff(step.note);
+                    }, tempo);
+                }
+            }
+            item.currentStep++;
+            if (item.currentStep >= item.sequence.stepCount) {
+                if (item.sequence.playing) {
+                    item.currentStep = 0;
+                } else {
+                    sequencerItems.splice(Number(index), 1);
+                }
+                if (index === '0') {
+                    startNext = true;
+                }
             }
         }
-        item.currentStep++;
-        if (item.currentStep >= item.sequence.stepCount) {
-            if (item.sequence.playing) {
-                item.currentStep = 0;
-            } else {
-                sequencerItems.splice(Number(index), 1);
-            }
+    }
+    if (startNext) {
+        for (const item of sequencerItems) {
+            item.status = Status.PLAYING;
         }
     }
 }
@@ -54,6 +70,7 @@ export function addToSequencer(sequence: Sequence) {
     sequencerItems.push({
         sequence,
         currentStep: 0,
+        status: sequencerItems.length ? Status.STARTING_NEXT : Status.PLAYING,
     });
 }
 
