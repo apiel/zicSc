@@ -30,6 +30,17 @@ export function loop() {
     return beatQuarter();
 }
 
+function sequenceEnd(item: SequencerItem, index: number) {
+    item.sequence.activeStep = undefined;
+    item.sequence.playing = false;
+    sequencerItems.splice(index, 1);
+    eventSequencer.emit('sequenceEnd', item);
+}
+
+function sequenceOnSameTrack(item: SequencerItem) {
+    return sequencerItems.findIndex((item2) => item2 !== item && item2.sequence.trackId === item.sequence.trackId);
+}
+
 async function beatQuarter() {
     let startNext = false;
     for (const index in sequencerItems) {
@@ -58,11 +69,13 @@ async function beatQuarter() {
                 if (item.sequence.playing && (!item.sequence.repeat || item.repeat < item.sequence.repeat)) {
                     item.sequence.activeStep = 0;
                     item.repeat++;
+                    const nextIndex = sequenceOnSameTrack(item);
+                    if (nextIndex !== -1) {
+                        sequencerItems[nextIndex].status = Status.PLAYING;
+                        sequenceEnd(item, Number(index));
+                    }
                 } else {
-                    item.sequence.activeStep = undefined;
-                    item.sequence.playing = false;
-                    sequencerItems.splice(Number(index), 1);
-                    eventSequencer.emit('sequenceEnd', item);
+                    sequenceEnd(item, Number(index));
                 }
                 if (index === '0') {
                     startNext = true;
@@ -72,7 +85,10 @@ async function beatQuarter() {
     }
     if (startNext) {
         for (const item of sequencerItems) {
-            item.status = Status.PLAYING;
+            // item.status = Status.PLAYING;
+            if (item.status === Status.STARTING_NEXT && sequenceOnSameTrack(item) === -1) {
+                item.status = Status.PLAYING;
+            }
         }
     }
     eventSequencer.emit('beatQuarter', sequencerItems);
